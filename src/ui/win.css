@@ -1,0 +1,48 @@
+/* Small windows: widget, quick start, toast, overlay. */
+body.clear { background: transparent; overflow: hidden; user-select: none; }
+
+/* ---- widget ---- */
+.widget { margin: 6px; height: 52px; display: grid; grid-template-columns: 4px 1fr auto; gap: 12px; align-items: center; padding: 0 14px 0 8px;
+  background: color-mix(in srgb, #121117 92%, transparent); border: 1px solid rgba(255,255,255,.08); border-radius: 12px; color: #d0d0d0;
+  box-shadow: 0 6px 18px rgba(0,0,0,.35); cursor: default; transition: opacity .18s; }
+.widget.fade { opacity: .12; }
+.widget .bar4 { width: 4px; height: 30px; border-radius: 4px; background: var(--positive); }
+.widget .k { font-size: 10.5px; text-transform: uppercase; letter-spacing: .08em; color: #8e8d98; }
+.widget .v { font-size: 19px; font-weight: 700; color: #f2f2f4; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.widget .side { text-align: right; font-size: 11.5px; color: #a9a8ad; font-variant-numeric: tabular-nums; line-height: 1.35; }
+.widget .side b { color: #f2f2f4; font-weight: 700; }
+
+/* ---- quick start ---- */
+.quick { height: 100vh; display: flex; flex-direction: column; padding: 16px 18px; gap: 14px; border: 1px solid var(--border-strong); border-radius: 10px; }
+.quick .head { display: flex; align-items: center; gap: 10px; -webkit-app-region: drag; }
+.quick .head > * { -webkit-app-region: no-drag; }
+.quick .types { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.quick .types button { display: grid; justify-items: center; gap: 6px; padding: 14px 8px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text-quiet); cursor: pointer; }
+.quick .types button:hover { border-color: var(--border-strong); color: var(--text-strong); }
+.quick .types button[aria-pressed="true"] { border-color: currentColor; color: var(--text-strong); background: var(--raised); }
+.quick .foot { margin-top: auto; display: flex; align-items: center; gap: 8px; }
+
+/* ---- toast ---- */
+.toast { margin: 8px; padding: 16px 18px; border-radius: 12px; background: var(--card); border: 1px solid var(--border-strong); box-shadow: var(--shadow); display: grid; gap: 12px; }
+.toast .score { font-size: 34px; font-weight: 300; color: var(--text-strong); line-height: 1; font-variant-numeric: tabular-nums; }
+.rate { display: flex; gap: 6px; }
+.rate button { flex: 1; height: 30px; border-radius: 6px; border: 1px solid var(--border-strong); background: none; color: var(--text-quiet); cursor: pointer; font-variant-numeric: tabular-nums; }
+.rate button:hover, .rate button[aria-pressed="true"] { background: var(--violet-bg); color: var(--text-strong); border-color: var(--violet); }
+
+/* ---- overlay (blocker / break) ---- */
+.overlay { height: 100vh; display: grid; place-items: center; color: #d0d0d0;
+  background: radial-gradient(1200px 600px at 50% 0%, rgba(104,87,147,.28), transparent 70%), #0c0b10; }
+.overlay .box { width: min(520px, calc(100vw - 48px)); display: grid; gap: 18px; justify-items: center; text-align: center; }
+.overlay h1 { font-size: 30px; font-weight: 700; color: #f2f2f4; letter-spacing: -.02em; }
+.overlay .lead { color: #a9a8ad; font-size: 15px; max-width: 440px; }
+.overlay .actions { display: grid; gap: 8px; width: 100%; }
+.overlay .actions .btn { height: 42px; justify-content: center; font-size: 14px; }
+.overlay .links { display: flex; gap: 18px; flex-wrap: wrap; justify-content: center; }
+.overlay .links button { background: none; border: 0; color: #8e8d98; cursor: pointer; font-size: 12.5px; padding: 4px; }
+.overlay .links button:hover { color: #f2f2f4; }
+.overlay .big-clock { font-size: 88px; font-weight: 300; color: #f2f2f4; font-variant-numeric: tabular-nums; letter-spacing: -.03em; line-height: 1; }
+.breath { width: 120px; height: 120px; border-radius: 50%; border: 2px solid rgba(0,237,255,.5); display: grid; place-items: center; font-size: 28px; color: #f2f2f4;
+  animation: breathe 4s ease-in-out infinite; }
+@keyframes breathe { 50% { transform: scale(1.22); border-color: rgba(239,179,255,.7); } }
+@media (prefers-reduced-motion: reduce) { .breath { animation: none; } }
+.overlay [disabled] { opacity: .35; pointer-events: none; }

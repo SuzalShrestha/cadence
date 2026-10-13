@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#24222e"/><stop offset="1" stop-color="#121117"/></linearGradient>
+    <linearGradient id="arc" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00edff"/><stop offset=".55" stop-color="#8b7bc8"/><stop offset="1" stop-color="#efb3ff"/></linearGradient>
+    <radialGradient id="glow" cx=".5" cy=".18" r=".7"><stop offset="0" stop-color="#685793" stop-opacity=".45"/><stop offset="1" stop-color="#685793" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="url(#bg)"/>
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="url(#glow)"/>
+  <rect x="101.5" y="101.5" width="821" height="821" rx="183.5" fill="none" stroke="#ffffff" stroke-opacity=".08" stroke-width="3"/>
+  <!-- a timer ring left open on the right: the C -->
+  <circle cx="512" cy="512" r="250" fill="none" stroke="#2b2a30" stroke-width="64"/>
+  <path d="M 689 335 A 250 250 0 1 0 689 689" fill="none" stroke="url(#arc)" stroke-width="64" stroke-linecap="round"/>
+  <circle cx="689" cy="335" r="20" fill="#00edff"/>
+</svg>

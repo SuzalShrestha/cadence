@@ -1,0 +1,76 @@
+{
+  "name": "cadence",
+  "productName": "Cadence",
+  "version": "0.2.0",
+  "description": "Local-first automatic time tracker for macOS. No account, no server.",
+  "license": "MIT",
+  "author": "Sujal Shrestha",
+  "homepage": "https://github.com/SuzalShrestha/cadence#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SuzalShrestha/cadence.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SuzalShrestha/cadence/issues"
+  },
+  "keywords": [
+    "time-tracker",
+    "productivity",
+    "electron",
+    "macos",
+    "local-first",
+    "focus",
+    "pomodoro"
+  ],
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test",
+    "dist": "electron-builder --mac --publish never"
+  },
+  "devDependencies": {
+    "electron": "44.7.0",
+    "electron-builder": "26.15.3"
+  },
+  "build": {
+    "appId": "io.github.suzalshrestha.cadence",
+    "productName": "Cadence",
+    "copyright": "Copyright © 2026 Cadence contributors",
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "mac": {
+      "category": "public.app-category.productivity",
+      "icon": "build/icon.png",
+      "identity": "-",
+      "hardenedRuntime": false,
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        }
+      ],
+      "extendInfo": {
+        "NSAppleEventsUsageDescription": "Cadence reads the frontmost app, its window title and the current browser tab to track your time. This data stays on your Mac."
+      }
+    },
+    "dmg": {
+      "title": "Cadence ${version}"
+    }
+  }
+}

@@ -1,0 +1,44 @@
+[
+  { "hostKey": "github.com", "name": "GitHub", "category": "code", "url": "^https?://([a-z0-9-]+\\.)*github\\.com" },
+  { "hostKey": "gitlab.com", "name": "GitLab", "category": "code", "url": "^https?://([a-z0-9-]+\\.)*gitlab\\.com" },
+  { "hostKey": "stackoverflow.com", "name": "Stack Overflow", "category": "code", "url": "^https?://([a-z0-9-]+\\.)*stackoverflow\\.com" },
+  { "hostKey": "localhost", "name": "Localhost", "category": "code", "url": "^https?://(localhost|127\\.0\\.0\\.1)" },
+  { "hostKey": "com.microsoft.VSCode", "name": "VS Code", "category": "code", "app": "^(Code|Visual Studio Code|com\\.microsoft\\.VSCode)$" },
+  { "hostKey": "com.todesktop.cursor", "name": "Cursor", "category": "code", "app": "^Cursor$" },
+  { "hostKey": "com.apple.dt.Xcode", "name": "Xcode", "category": "code", "app": "^Xcode$" },
+  { "hostKey": "com.jetbrains", "name": "JetBrains IDE", "category": "code", "app": "^(IntelliJ IDEA|PyCharm|WebStorm|GoLand|RubyMine|CLion|Rider|Android Studio)" },
+  { "hostKey": "terminal", "name": "Terminal", "category": "code", "app": "^(Terminal|iTerm2?|Warp|Ghostty|Alacritty|kitty|WezTerm)$" },
+  { "hostKey": "com.anthropic.claude", "name": "Claude", "category": "code", "app": "^Claude$" },
+
+  { "hostKey": "slack", "name": "Slack", "category": "communication", "app": "^Slack$", "url": null },
+  { "hostKey": "app.slack.com", "name": "Slack", "category": "communication", "url": "^https?://app\\.slack\\.com" },
+  { "hostKey": "mail.google.com", "name": "Gmail", "category": "communication", "url": "^https?://mail\\.google\\.com" },
+  { "hostKey": "outlook", "name": "Outlook", "category": "communication", "app": "^(Microsoft Outlook|Mail)$" },
+  { "hostKey": "messages", "name": "Messages", "category": "communication", "app": "^(Messages|WhatsApp|Telegram|Signal|Discord)$" },
+
+  { "hostKey": "meet.google.com", "name": "Google Meet", "category": "meetings", "url": "^https?://meet\\.google\\.com/[a-z]" },
+  { "hostKey": "zoom.us", "name": "Zoom", "category": "meetings", "app": "^(zoom\\.us|Zoom)$" },
+  { "hostKey": "teams", "name": "Microsoft Teams", "category": "meetings", "app": "^Microsoft Teams" },
+  { "hostKey": "facetime", "name": "FaceTime", "category": "meetings", "app": "^FaceTime$" },
+
+  { "hostKey": "figma.com", "name": "Figma", "category": "design", "url": "^https?://(www\\.)?figma\\.com" },
+  { "hostKey": "com.figma.Desktop", "name": "Figma", "category": "design", "app": "^Figma$" },
+  { "hostKey": "sketch", "name": "Design tools", "category": "design", "app": "^(Sketch|Adobe .*|Affinity .*|Pixelmator.*)$" },
+
+  { "hostKey": "docs.google.com", "name": "Google Docs", "category": "docs", "url": "^https?://docs\\.google\\.com" },
+  { "hostKey": "notion.so", "name": "Notion", "category": "docs", "url": "^https?://(www\\.)?notion\\.(so|com)" },
+  { "hostKey": "notes", "name": "Writing apps", "category": "docs", "app": "^(Notion|Notes|Obsidian|Pages|Microsoft Word|Bear|Craft)$" },
+  { "hostKey": "linear.app", "name": "Linear", "category": "docs", "url": "^https?://linear\\.app" },
+
+  { "hostKey": "learning", "name": "Learning", "category": "learning", "url": "^https?://([a-z0-9-]+\\.)*(coursera\\.org|udemy\\.com|developer\\.mozilla\\.org|wikipedia\\.org|khanacademy\\.org)" },
+
+  { "hostKey": "youtube.com", "name": "YouTube", "category": "entertainment", "url": "^https?://([a-z0-9-]+\\.)*youtube\\.com", "blockInFocus": true },
+  { "hostKey": "netflix.com", "name": "Netflix", "category": "entertainment", "url": "^https?://([a-z0-9-]+\\.)*netflix\\.com", "blockInFocus": true },
+  { "hostKey": "entertainment", "name": "Media apps", "category": "entertainment", "app": "^(Spotify|Music|TV|Steam|Netflix)$" },
+
+  { "hostKey": "x.com", "name": "X", "category": "social", "url": "^https?://([a-z0-9-]+\\.)*(x\\.com|twitter\\.com)", "blockInFocus": true },
+  { "hostKey": "reddit.com", "name": "Reddit", "category": "social", "url": "^https?://([a-z0-9-]+\\.)*reddit\\.com", "blockInFocus": true },
+  { "hostKey": "instagram.com", "name": "Instagram", "category": "social", "url": "^https?://([a-z0-9-]+\\.)*instagram\\.com", "blockInFocus": true },
+  { "hostKey": "facebook.com", "name": "Facebook", "category": "social", "url": "^https?://([a-z0-9-]+\\.)*facebook\\.com", "blockInFocus": true },
+  { "hostKey": "linkedin.com", "name": "LinkedIn", "category": "social", "url": "^https?://([a-z0-9-]+\\.)*linkedin\\.com" }
+]
