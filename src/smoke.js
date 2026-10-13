@@ -74,6 +74,9 @@ module.exports = ({ app, api, getWindow, startSession, showToast, showOverlays, 
     startSession('break'); await wait(1500); await shot('overlay-break', getWindow('overlay'));
     api.stopSession();
 
+    // Security: the dashboard must refuse to navigate away from its own UI files.
+    await js("location.href = 'file:///etc/hosts'"); await wait(800);
+    if (!dash.webContents.getURL().includes('/ui/app.html')) errors.push(`main: dashboard navigated to ${dash.webContents.getURL()}`);
     console.log(errors.length ? `SMOKE renderer errors:\n  ${[...new Set(errors)].join('\n  ')}` : 'SMOKE renderer errors: none');
     app.quit();
   })().catch((e) => { console.error('SMOKE failed', e); app.exit(1); });

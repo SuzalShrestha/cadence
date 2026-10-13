@@ -12,6 +12,12 @@ if (!app.requestSingleInstanceLock()) app.quit();
 
 const UI = (f) => path.join(__dirname, 'ui', f);
 const PRELOAD = path.join(__dirname, 'preload.js');
+// Only our own UI files may use the API. Any other file:// page (a dropped file, a link) must not.
+const isOwnPage = (url) => { try { return require('node:url').fileURLToPath(url).startsWith(UI('') + path.sep); } catch { return false; } };
+app.on('web-contents-created', (_e, wc) => {
+  wc.on('will-navigate', (ev, url) => { if (!isOwnPage(url)) ev.preventDefault(); });
+  wc.setWindowOpenHandler(() => ({ action: 'deny' }));
+});
 const now = () => Math.floor(Date.now() / 1000);
 const cap = (s) => s[0].toUpperCase() + s.slice(1);
 
@@ -472,7 +478,8 @@ const api = {
   async exportCsv({ from, to }) {
     checkKey(from); checkKey(to);
     const [a] = store.dayBounds(from), [, b] = store.dayBounds(to);
-    const q = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+    // Descriptions can come from window titles. A leading = + - @ would run as a spreadsheet formula.
+    const q = (v) => `"${String(v ?? '').replace(/^[=+\-@\t\r]/, "'$&").replace(/"/g, '""')}"`;
     const iso = (t) => new Date(t * 1000).toISOString();
     const lines = [['Start', 'End', 'Hours', 'Description', 'Client', 'Project', 'Task', 'Billable', 'Amount'].join(',')];
     for (const e of db.entries.filter((x) => overlap(x.start, x.stop, a, b) > 0).sort((x, y) => x.start - y.start)) {
@@ -500,7 +507,7 @@ const api = {
 };
 
 ipcMain.handle('api', (e, method, ...args) => {
-  if (!e.senderFrame?.url.startsWith('file://')) throw new Error('blocked');
+  if (!isOwnPage(e.senderFrame?.url)) throw new Error('blocked');
   if (!Object.hasOwn(api, method)) throw new Error(`unknown method ${method}`);
   return api[method](...args);
 });

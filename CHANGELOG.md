@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.1 - 2026-10-13
+
+### Security
+- Only Cadence's own UI files can call the app API. Before, any `file://` page could call it.
+- Windows block navigation to other pages and block new windows.
+- CSV export puts a `'` before cells that start with `=`, `+`, `-` or `@`, so spreadsheet apps do not run them as formulas.
+
 ## 0.2.0 - 2026-10-13
 
 First public release.

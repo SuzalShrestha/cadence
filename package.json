@@ -1,7 +1,7 @@
 {
   "name": "cadence",
   "productName": "Cadence",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Local-first automatic time tracker for macOS. No account, no server.",
   "license": "MIT",
   "author": "Sujal Shrestha",
