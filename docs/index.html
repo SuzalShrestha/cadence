@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cadence: a time tracker that stays on your Mac</title>
+<meta name="description" content="Cadence records the apps and sites you use, draws your day on a calendar and helps you protect focus time. Free, open source, local-first. No account, no server.">
+<meta property="og:title" content="Cadence: a time tracker that stays on your Mac">
+<meta property="og:description" content="Automatic time tracking, focus sessions and reports. Free and open source. Your data never leaves your Mac.">
+<meta property="og:image" content="https://suzalshrestha.github.io/cadence/screenshots/home-day.png">
+<meta property="og:url" content="https://suzalshrestha.github.io/cadence/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="icon.png">
+<style>
+@font-face { font-family: Lato; font-weight: 400; font-display: swap; src: url(fonts/lato-400.woff2) format('woff2'); }
+@font-face { font-family: Lato; font-weight: 700; font-display: swap; src: url(fonts/lato-700.woff2) format('woff2'); }
+@font-face { font-family: Lato; font-weight: 900; font-display: swap; src: url(fonts/lato-900.woff2) format('woff2'); }
+
+:root {
+  --bg: #121117; --sunken: #0d0c11; --card: #1c1b23; --raised: #24232c;
+  --border: #29282f; --border-strong: #3d3b46;
+  --text: #d0d0d0; --strong: #f2f2f4; --quiet: #a9a8ad; --silent: #8a8992;
+  --accent: #08afc1; --accent-bright: #00edff; --accent-ink: #061418;
+  --violet: #8b7bc8; --violet-bg: #373350;
+  --c-code: #5982db; --c-comm: #c08200; --c-meet: #13a3b0; --c-social: #d9625a;
+  --c-learn: #1f9a5e; --c-docs: #a177c0; --c-other: #4c4b55;
+  --wrap: 1120px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 400 17px/1.6 Lato, -apple-system, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+img { display: block; max-width: 100%; height: auto; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--accent-bright); outline-offset: 3px; border-radius: 4px; }
+.wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 24px; }
+.feature > *, .grid > *, .steps > li, .more > div { min-width: 0; } /* let code blocks scroll instead of widening the page */
+h1, h2, h3 { color: var(--strong); margin: 0; letter-spacing: -0.02em; }
+h1 { font-weight: 900; font-size: clamp(40px, 6.4vw, 76px); line-height: 1.02; }
+h2 { font-weight: 900; font-size: clamp(30px, 3.6vw, 44px); line-height: 1.1; }
+h3 { font-weight: 700; font-size: 17px; letter-spacing: 0; }
+p { margin: 0; }
+.eyebrow { font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--violet); margin-bottom: 14px; }
+.lead { font-size: 19px; color: var(--quiet); max-width: 34em; }
+kbd { font: 700 13px/1 Lato, sans-serif; padding: 3px 6px; border: 1px solid var(--border-strong); border-bottom-width: 2px; border-radius: 4px; color: var(--strong); background: var(--raised); }
+
+/* nav */
+.nav { position: sticky; top: 0; z-index: 10; background: rgb(18 17 23 / .82); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid transparent; transition: border-color .2s; }
+.nav.scrolled { border-color: var(--border); }
+.nav .wrap { display: flex; align-items: center; gap: 28px; height: 60px; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 900; font-size: 18px; color: var(--strong); text-decoration: none; }
+.brand img { width: 30px; height: 30px; margin: -2px; }
+.nav nav { display: flex; gap: 24px; margin-left: auto; font-size: 15px; }
+.nav nav a { color: var(--quiet); text-decoration: none; }
+.nav nav a:hover { color: var(--strong); }
+
+/* buttons */
+.btn { display: inline-flex; align-items: center; gap: 9px; height: 46px; padding: 0 20px; border-radius: 6px; font: 700 15px/1 Lato, sans-serif; text-decoration: none; border: 1px solid var(--border-strong); color: var(--strong); background: var(--card); transition: background .15s, transform .15s; }
+.btn:hover { background: var(--raised); }
+.btn:active { transform: translateY(1px); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.primary:hover { background: #12c3d6; }
+.btn svg { width: 17px; height: 17px; flex: none; }
+.btn small { font-weight: 400; opacity: .75; }
+
+/* hero */
+.hero { padding: 96px 0 0; position: relative; overflow: hidden; }
+.hero::before { content: ""; position: absolute; inset: -200px 0 auto; height: 760px; background: radial-gradient(50% 50% at 50% 40%, rgb(104 87 147 / .32), transparent 70%); pointer-events: none; }
+.hero .wrap { position: relative; }
+.hero h1 { max-width: 11em; }
+.hero h1 em { font-style: normal; background: linear-gradient(100deg, var(--accent-bright), var(--violet) 60%, #efb3ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.hero .lead { margin-top: 22px; }
+.cta { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 34px; }
+.cta .alt { font-size: 14px; color: var(--silent); margin-left: 6px; }
+.cta .alt a { color: var(--quiet); }
+.meta { margin-top: 18px; font-size: 14px; color: var(--silent); }
+
+/* a sample day, drawn like the app's activity lane */
+.day { margin-top: 56px; max-width: 620px; }
+.day-bar { display: flex; gap: 2px; height: 10px; }
+.day-bar i { border-radius: 3px; }
+.day-ticks { display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px; color: var(--silent); }
+
+.window { margin-top: 56px; border-radius: 12px; border: 1px solid var(--border-strong); background: var(--sunken); overflow: hidden; box-shadow: 0 40px 120px -20px rgb(0 0 0 / .7), 0 0 0 1px rgb(0 0 0 / .4); }
+.window .bar { height: 30px; display: flex; align-items: center; gap: 7px; padding: 0 12px; background: var(--card); border-bottom: 1px solid var(--border); }
+.window .bar i { width: 11px; height: 11px; border-radius: 50%; background: var(--border-strong); }
+.hero .window { margin-bottom: -1px; border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+
+/* features */
+section { padding: 120px 0; }
+.rule { border-top: 1px solid var(--border); }
+.feature { display: grid; grid-template-columns: 5fr 7fr; gap: 64px; align-items: center; }
+.feature.flip { grid-template-columns: 7fr 5fr; }
+.feature.flip .copy { order: 2; }
+.copy h2 { margin-bottom: 18px; }
+.copy p + p { margin-top: 14px; }
+.copy .lead { font-size: 18px; }
+.points { list-style: none; padding: 0; margin: 26px 0 0; display: grid; gap: 10px; font-size: 15.5px; color: var(--quiet); }
+.points li { display: flex; gap: 10px; }
+.points li::before { content: ""; flex: none; width: 6px; height: 6px; margin-top: 9px; border-radius: 2px; background: var(--dot, var(--accent)); }
+.shot { border-radius: 10px; border: 1px solid var(--border-strong); overflow: hidden; box-shadow: 0 30px 80px -30px rgb(0 0 0 / .8); }
+.stack { position: relative; padding-bottom: 72px; }
+.stack .shot + .shot { position: absolute; width: 58%; left: -6%; bottom: 0; box-shadow: 0 30px 70px -10px rgb(0 0 0 / .9); }
+
+/* privacy */
+.privacy { background: var(--sunken); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.privacy .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start; }
+.tree { margin: 0; padding: 24px 26px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; font: 14px/1.9 ui-monospace, "SF Mono", Menlo, monospace; color: var(--text); overflow-x: auto; }
+.tree .dim { color: var(--silent); }
+.tree .path { color: var(--strong); }
+.facts { list-style: none; margin: 32px 0 0; padding: 0; display: grid; gap: 22px; }
+.facts h3 { margin-bottom: 4px; }
+.facts p { color: var(--quiet); font-size: 15.5px; }
+
+/* more */
+.more { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; margin-top: 56px; background: var(--border); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.more div { background: var(--bg); padding: 26px 26px 28px; }
+.more h3 { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.more h3::before { content: ""; width: 8px; height: 8px; border-radius: 2px; background: var(--dot); }
+.more p { font-size: 15px; color: var(--quiet); }
+
+/* install */
+.steps { list-style: none; counter-reset: s; margin: 48px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.steps li { counter-increment: s; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 26px; }
+.steps li::before { content: counter(s); display: grid; place-items: center; width: 28px; height: 28px; margin-bottom: 16px; border-radius: 50%; background: var(--violet-bg); color: var(--strong); font-weight: 900; font-size: 14px; }
+.steps h3 { margin-bottom: 6px; }
+.steps p { font-size: 15px; color: var(--quiet); }
+.cmd { display: flex; align-items: center; gap: 8px; margin-top: 14px; padding: 8px 8px 8px 12px; background: var(--sunken); border: 1px solid var(--border); border-radius: 6px; }
+.cmd code { flex: 1; min-width: 0; overflow-wrap: anywhere; font: 12.5px ui-monospace, "SF Mono", Menlo, monospace; color: var(--strong); }
+.cmd button { flex: none; font: 700 12px Lato, sans-serif; color: var(--quiet); background: var(--raised); border: 1px solid var(--border-strong); border-radius: 4px; padding: 5px 9px; cursor: pointer; }
+.cmd button:hover { color: var(--strong); }
+.req { margin-top: 22px; font-size: 14px; color: var(--silent); }
+
+/* end */
+.end { text-align: center; padding: 120px 0 100px; }
+.end img { width: 96px; height: 96px; margin: 0 auto 26px; }
+.end .lead { margin: 18px auto 0; }
+.end .cta { justify-content: center; }
+footer { border-top: 1px solid var(--border); padding: 32px 0 48px; font-size: 14px; color: var(--silent); }
+footer .wrap { display: flex; flex-wrap: wrap; gap: 16px 32px; justify-content: space-between; }
+footer nav { display: flex; flex-wrap: wrap; gap: 20px; }
+footer a { color: var(--quiet); text-decoration: none; }
+footer a:hover { color: var(--strong); }
+footer p { max-width: 36em; }
+
+@media (max-width: 900px) {
+  section { padding: 84px 0; }
+  .feature, .feature.flip, .privacy .grid { grid-template-columns: 1fr; gap: 40px; }
+  .feature.flip .copy { order: 0; }
+  .more, .steps { grid-template-columns: 1fr; }
+  .stack .shot + .shot { width: 64%; left: auto; right: -2%; }
+}
+@media (max-width: 600px) {
+  .wrap { padding: 0 16px; }
+  .nav nav a:not(.gh) { display: none; }
+  .hero { padding-top: 56px; }
+  .cta .btn { width: 100%; justify-content: center; }
+  .cta .alt { margin: 4px 0 0; }
+  .window .bar { height: 22px; }
+  .stack { padding-bottom: 0; }
+  .stack .shot + .shot { position: static; width: 100%; margin-top: 16px; }
+  .tree { font-size: 12px; padding: 18px; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<header class="nav" id="nav">
+  <div class="wrap">
+    <a class="brand" href="#top"><img src="icon.png" alt="" width="30" height="30">Cadence</a>
+    <nav aria-label="Main">
+      <a href="#features">Features</a>
+      <a href="#privacy">Privacy</a>
+      <a href="#install">Install</a>
+      <a class="gh" href="https://github.com/SuzalShrestha/cadence">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <div class="hero">
+    <div class="wrap">
+      <h1>Know where your <em>day</em> went.</h1>
+      <p class="lead">Cadence records the apps and websites you use, draws your day on a calendar, and helps you protect your focus time. It runs only on your Mac. No account. No server.</p>
+      <div class="cta">
+        <a class="btn primary" data-dl="arm" href="https://github.com/SuzalShrestha/cadence/releases/download/v0.2.1/Cadence-0.2.1-arm64.dmg">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg>
+          Download for Mac <small>Apple Silicon</small></a>
+        <a class="btn" href="https://github.com/SuzalShrestha/cadence">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.04-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.25.73-1.54-2.56-.29-5.25-1.28-5.25-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.7 5.4-5.27 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5Z"/></svg>
+          View source</a>
+        <span class="alt">Intel Mac? <a data-dl="intel" href="https://github.com/SuzalShrestha/cadence/releases/download/v0.2.1/Cadence-0.2.1.dmg">Get the Intel build</a></span>
+      </div>
+      <p class="meta">Free and open source · MIT license · <span data-ver>v0.2.1</span> · macOS 13 or later</p>
+
+      <div class="day" aria-hidden="true">
+        <div class="day-bar">
+          <i style="flex:9;background:var(--c-docs)" title="Docs & Planning"></i>
+          <i style="flex:5;background:var(--c-meet)" title="Meetings"></i>
+          <i style="flex:14;background:var(--c-code)" title="Code"></i>
+          <i style="flex:2;background:var(--c-social)" title="Social"></i>
+          <i style="flex:4;background:var(--c-other)" title="Break"></i>
+          <i style="flex:3;background:var(--c-comm)" title="Communication"></i>
+          <i style="flex:12;background:var(--c-code)" title="Code"></i>
+          <i style="flex:4;background:var(--c-meet)" title="Meetings"></i>
+          <i style="flex:5;background:var(--c-learn)" title="Learning"></i>
+        </div>
+        <div class="day-ticks"><span>9 AM</span><span>11</span><span>1 PM</span><span>3</span><span>5 PM</span></div>
+      </div>
+
+      <div class="window">
+        <div class="bar" aria-hidden="true"><i></i><i></i><i></i></div>
+        <img src="screenshots/home-day.png" width="1600" height="1035" fetchpriority="high" alt="The Cadence home screen: a day calendar with lanes for activity, time entries, tasks, projects and clients, and a summary column with work hours, focus time and time by label.">
+      </div>
+    </div>
+  </div>
+
+  <section class="rule" id="features">
+    <div class="wrap feature">
+      <div class="copy">
+        <p class="eyebrow">Calendar</p>
+        <h2>Your day, already filled in.</h2>
+        <p class="lead">Every app and website lands on the calendar as you work. You do not start a timer or fill in a timesheet at the end of the week.</p>
+        <ul class="points">
+          <li style="--dot:var(--c-docs)">Lanes for activity, time entries, tasks, projects, clients and sessions.</li>
+          <li style="--dot:var(--c-meet)">Drag across a lane to log time. Click a block to see the apps behind it.</li>
+          <li style="--dot:var(--c-code)">Week, Month and Year views show your hours against your daily target.</li>
+        </ul>
+      </div>
+      <div class="shot"><img src="screenshots/home-week.png" width="1600" height="1035" loading="lazy" alt="Week view: seven days of colored activity blocks with the weekly summary on the right."></div>
+    </div>
+  </section>
+
+  <section class="rule">
+    <div class="wrap feature flip">
+      <div class="copy">
+        <p class="eyebrow">Focus</p>
+        <h2>Protect the work that matters.</h2>
+        <p class="lead">Press <kbd>⌘</kbd> <kbd>E</kbd> in any app to start a focus session. If you open YouTube or Reddit during focus, Cadence steps in. Turn on urge surfing, and it asks you to wait ten seconds before you choose.</p>
+        <ul class="points">
+          <li style="--dot:var(--c-meet)">Focus, meeting and break sessions, planned ahead or detected automatically.</li>
+          <li style="--dot:var(--violet)">Pomodoro sets, break reminders and a full-screen break window.</li>
+          <li style="--dot:var(--c-learn)">A focus score after each session, and trends by week, month and year.</li>
+        </ul>
+      </div>
+      <div class="stack">
+        <div class="shot"><img src="screenshots/timer.png" width="1600" height="1035" loading="lazy" alt="The timer page with a 45-minute focus countdown and planned sessions."></div>
+        <div class="shot"><img src="screenshots/blocker.png" width="1600" height="1035" loading="lazy" alt="The distraction blocker over YouTube, with options to go back to work, snooze or end the session."></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="rule">
+    <div class="wrap feature">
+      <div class="copy">
+        <p class="eyebrow">Reports</p>
+        <h2>Bill your hours without a spreadsheet.</h2>
+        <p class="lead">Group your time by project, client, task, label or app, for any date range. Billable totals add up while you work.</p>
+        <ul class="points">
+          <li style="--dot:var(--c-comm)">Hourly rates on clients and projects, and budgets that show how much you have used.</li>
+          <li style="--dot:var(--c-docs)">Keywords match window titles and suggest time entries for you to accept.</li>
+          <li style="--dot:var(--c-code)">Export to CSV for your invoicing tool.</li>
+        </ul>
+      </div>
+      <div class="shot"><img src="screenshots/reports.png" width="1600" height="1035" loading="lazy" alt="The reports page: tracked time, daily average, billable hours and amount, a bar chart by day and a table by project."></div>
+    </div>
+  </section>
+
+  <section class="privacy" id="privacy">
+    <div class="wrap grid">
+      <div>
+        <p class="eyebrow">Privacy</p>
+        <h2>Your data stays in one folder on your Mac.</h2>
+        <ul class="facts">
+          <li><h3>No network requests</h3><p>Cadence has no account, no sync, no telemetry and no analytics. The source is open, so you can check this yourself.</p></li>
+          <li><h3>Plain files you own</h3><p>Activity is saved as JSON Lines, one file per day. Back it up, search it or delete it with the tools you already use.</p></li>
+          <li><h3>You decide what it records</h3><p>Remove window titles, keep only the website domain, record no URLs, or stop tracking an app or site completely.</p></li>
+        </ul>
+      </div>
+      <pre class="tree" aria-label="The Cadence data folder"><span class="path">~/Library/Application Support/Cadence/</span>
+<span class="dim">├──</span> events/
+<span class="dim">│   ├──</span> 2026-10-12.jsonl   <span class="dim"># one line per app or tab</span>
+<span class="dim">│   └──</span> 2026-10-13.jsonl
+<span class="dim">├──</span> db.json             <span class="dim"># entries, projects, sessions</span>
+<span class="dim">├──</span> rules.json          <span class="dim"># how apps are labeled</span>
+<span class="dim">└──</span> settings.json</pre>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <p class="eyebrow">And more</p>
+      <h2>Small tools for the rest of the day.</h2>
+      <div class="more">
+        <div style="--dot:var(--c-meet)"><h3>Desktop widget</h3><p>A small timer in the corner shows your session, or the time since your last break.</p></div>
+        <div style="--dot:var(--violet)"><h3>Menu-bar timer</h3><p>The current session is always in view. Start or stop it from the menu.</p></div>
+        <div style="--dot:var(--c-code)"><h3>Rules you can read</h3><p>Label apps and websites with regular expressions. Each rule has flags for focus, meetings and blocking.</p></div>
+        <div style="--dot:var(--c-comm)"><h3>Work-hour targets</h3><p>Set a target for each weekday and mark days off, so a day off does not count against your week.</p></div>
+        <div style="--dot:var(--c-learn)"><h3>Activity log</h3><p>Every app and website with its window titles, so you can find what you worked on last Tuesday.</p></div>
+        <div style="--dot:var(--c-docs)"><h3>Light and dark</h3><p>Follows your system theme, or choose one. Supports the 12-hour and 24-hour clock.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="rule" id="install">
+    <div class="wrap">
+      <p class="eyebrow">Install</p>
+      <h2>Ready in about a minute.</h2>
+      <ol class="steps">
+        <li><h3>Download</h3><p>Get the <a data-dl="arm" href="https://github.com/SuzalShrestha/cadence/releases/download/v0.2.1/Cadence-0.2.1-arm64.dmg">Apple Silicon</a> or <a data-dl="intel" href="https://github.com/SuzalShrestha/cadence/releases/download/v0.2.1/Cadence-0.2.1.dmg">Intel</a> disk image. Open it and drag Cadence to Applications.</p></li>
+        <li><h3>Open it the first time</h3><p>Cadence is not notarized by Apple yet, so macOS blocks the first launch. Right-click the app, select Open, then select Open again. You can also run this command:</p>
+          <div class="cmd"><code id="xattr">xattr -dr com.apple.quarantine /Applications/Cadence.app</code><button type="button" data-copy="xattr">Copy</button></div></li>
+        <li><h3>Allow access</h3><p>Allow Automation and Accessibility when macOS asks. Cadence uses them to read the name of the frontmost app, its window title and your browser's current tab.</p></li>
+      </ol>
+      <p class="req">Requires macOS 13 or later. Works on Apple Silicon and Intel. Supported browsers for URLs: Safari, Chrome, Brave, Edge, Arc and Vivaldi.</p>
+    </div>
+  </section>
+
+  <div class="end rule">
+    <div class="wrap">
+      <img src="icon.png" alt="" width="96" height="96" loading="lazy">
+      <h2>Take back your time.</h2>
+      <p class="lead">Cadence is free and open source. Read the code, report a bug or send a pull request.</p>
+      <div class="cta">
+        <a class="btn primary" data-dl="arm" href="https://github.com/SuzalShrestha/cadence/releases/download/v0.2.1/Cadence-0.2.1-arm64.dmg">Download for Mac</a>
+        <a class="btn" href="https://github.com/SuzalShrestha/cadence">Star on GitHub</a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <nav aria-label="Footer">
+      <a href="https://github.com/SuzalShrestha/cadence/releases">Releases</a>
+      <a href="https://github.com/SuzalShrestha/cadence/blob/main/CHANGELOG.md">Changelog</a>
+      <a href="https://github.com/SuzalShrestha/cadence/blob/main/docs/findings.md">Research notes</a>
+      <a href="https://github.com/SuzalShrestha/cadence/issues">Report a bug</a>
+      <a href="https://github.com/SuzalShrestha/cadence/blob/main/LICENSE">MIT license</a>
+    </nav>
+    <p>Cadence is an independent project. It is not affiliated with or endorsed by Rize. Rize is a trademark of its owner.</p>
+  </div>
+</footer>
+
+<script>
+  // Point the download links at the newest release. The hard-coded links stay if GitHub cannot be reached.
+  fetch('https://api.github.com/repos/SuzalShrestha/cadence/releases/latest')
+    .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
+    .then((rel) => {
+      const url = (test) => rel.assets.find((a) => test(a.name))?.browser_download_url;
+      const links = { arm: url((n) => n.endsWith('-arm64.dmg')), intel: url((n) => n.endsWith('.dmg') && !n.includes('arm64')) };
+      document.querySelectorAll('[data-dl]').forEach((a) => { if (links[a.dataset.dl]) a.href = links[a.dataset.dl]; });
+      document.querySelectorAll('[data-ver]').forEach((el) => { el.textContent = rel.tag_name; });
+    })
+    .catch(() => {});
+
+  document.querySelectorAll('[data-copy]').forEach((b) => b.addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(document.getElementById(b.dataset.copy).textContent); b.textContent = 'Copied'; }
+    catch { b.textContent = 'Select and copy'; }
+    setTimeout(() => { b.textContent = 'Copy'; }, 1800);
+  }));
+
+  const nav = document.getElementById('nav');
+  addEventListener('scroll', () => nav.classList.toggle('scrolled', scrollY > 8), { passive: true });
+</script>
+</body>
+</html>

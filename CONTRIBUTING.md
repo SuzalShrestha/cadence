@@ -43,6 +43,7 @@ CADENCE_DATA=/tmp/cadence-dev npm start
 | `src/active.js` | Reads the frontmost app, window title and browser URL (AppleScript) |
 | `src/ui/` | Dashboard pages and small windows |
 | `docs/findings.md` | Research notes |
+| `docs/index.html` | Website (GitHub Pages, served from `docs/`) |
 
 ## License
 

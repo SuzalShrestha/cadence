@@ -5,7 +5,7 @@
   "description": "Local-first automatic time tracker for macOS. No account, no server.",
   "license": "MIT",
   "author": "Sujal Shrestha",
-  "homepage": "https://github.com/SuzalShrestha/cadence#readme",
+  "homepage": "https://suzalshrestha.github.io/cadence/",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/SuzalShrestha/cadence.git"

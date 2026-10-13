@@ -4,6 +4,8 @@
 
 <p align="center">A local-first automatic time tracker for macOS.<br>No account. No server. Your data stays on your Mac.</p>
 
+<p align="center"><a href="https://suzalshrestha.github.io/cadence/"><b>Website</b></a> · <a href="https://github.com/SuzalShrestha/cadence/releases/latest"><b>Download</b></a> · <a href="CHANGELOG.md"><b>Changelog</b></a></p>
+
 <p align="center"><img src="docs/screenshots/home-day.png" alt="Cadence home calendar with activity lanes and the daily summary"></p>
 
 Cadence records the app and website you use, puts the time on a calendar, and helps you focus with sessions, a blocker and break reminders. Its tracking behavior and visual style come from a study of the Rize desktop app ([docs/findings.md](docs/findings.md)).
@@ -37,7 +39,7 @@ macOS asks for these permissions on the first run:
 | ![Week view](docs/screenshots/home-week.png) | ![Month view](docs/screenshots/home-month.png) |
 | ![Focus timer](docs/screenshots/timer.png) | ![Activity](docs/screenshots/activity.png) |
 | ![Reports](docs/screenshots/reports.png) | ![Productivity](docs/screenshots/productivity.png) |
-| ![Distraction blocker](docs/screenshots/overlay-block.png) | ![Light theme](docs/screenshots/home-light.png) |
+| ![Distraction blocker](docs/screenshots/blocker.png) | ![Light theme](docs/screenshots/home-light.png) |
 
 ## Features
 
