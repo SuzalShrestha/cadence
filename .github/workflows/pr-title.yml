@@ -1,0 +1,31 @@
+# Pull requests are squash-merged, so the PR title becomes the commit on main
+# and the line in the changelog. It must follow Conventional Commits.
+name: PR title
+on:
+  pull_request_target:
+    types: [opened, edited, synchronize, reopened]
+permissions:
+  pull-requests: read
+jobs:
+  title:
+    runs-on: ubuntu-latest
+    steps:
+      # Reads only the title through the API. It never checks out pull request code.
+      - uses: amannn/action-semantic-pull-request@48f256284bd46cdaab1048c3721360e808335d50 # v6.1.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            perf
+            refactor
+            docs
+            test
+            build
+            ci
+            chore
+            revert
+          requireScope: false
+          subjectPattern: ^[a-z].+[^.]$
+          subjectPatternError: Start the subject with a lowercase letter and do not end it with a period.

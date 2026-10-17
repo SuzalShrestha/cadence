@@ -1,10 +1,10 @@
 import { api, esc, icon, $, $$, today, addDays, rangeOf, stepRange, keyOf, tsOf, shortDate, weekday, short, hm, nowS, confirmBox, emptyState, notice } from '../lib.js';
 
-let el, ctx, key = today(), filter = 'all', data = null, sugg = [], ents = {};
+let el, key = today(), filter = 'all', data = null, sugg = [], ents = {};
 let entryModal; // shared with Home
 
-export async function mount(root, c) {
-  el = root; ctx = c;
+export async function mount(root) {
+  el = root;
   ({ entryModal } = await import('./home.js'));
   await load();
 }
