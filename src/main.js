@@ -3,7 +3,7 @@ const { app, BrowserWindow, Tray, Menu, Notification, globalShortcut, ipcMain, n
 const fs = require('node:fs');
 const path = require('node:path');
 const core = require('./core');
-const { TICK_MS, Idler, Segmenter, matchRule, isBlockRule, clock, hrMin, focusScore, focusLabel, detectSessions, summarize, appsInRange, suggestEntries, overlap } = core;
+const { TICK_MS, Idler, Segmenter, matchRule, isBlockRule, clock, hrMin, focusScore, focusLabel, detectSessions, summarize, appsInRange, suggestEntries, overlap, weeklyReport } = core;
 const { getActiveApp } = require('./active');
 const createStore = require('./store');
 
@@ -74,7 +74,18 @@ function rollDay() {
   const k = store.dayKey(new Date());
   if (k === todayKey) return;
   todayKey = k;
+  checkWeekly();
   todayActive = store.events(k).filter((e) => !e.idle).reduce((a, e) => a + e.endTimestamp - e.startTimestamp, 0);
+}
+
+// Once per week, for the last full Mon-Sun week: a notification that opens the report (Rize sends an email on Monday).
+function checkWeekly() {
+  const d = new Date();
+  const from = store.dayKey(new Date(d.getFullYear(), d.getMonth(), d.getDate() - ((d.getDay() + 6) % 7) - 7));
+  if (!settings.weeklyReportEnabled || settings.weeklyReportSent >= from) return;
+  store.saveSettings({ weeklyReportSent: from });
+  const r = api.weekly(from);
+  if (r.work.total) notify('Your weekly productivity assessment is ready', r.coach.insight, () => openDashboard(`weekly/${from}`));
 }
 
 // ---------------------------------------------------------------- sessions (Rize Session State)
@@ -389,6 +400,30 @@ const api = {
     const [a] = store.dayBounds(from), [, b] = store.dayBounds(to);
     const entries = db.entries.filter((e) => overlap(e.start, e.stop, a, b) > 0);
     return { days, categories: [...cats].sort((x, y) => y[1] - x[1]).map(([name, secs]) => ({ name, secs })), entries };
+  },
+
+  weekly(from) {
+    checkKey(from);
+    const [y, m, d] = from.split('-').map(Number);
+    const key = (n) => store.dayKey(new Date(y, m - 1, d + n));
+    const r = weeklyReport(keysBetween(from, key(6)).map(daySummary), keysBetween(key(-28), key(-1)).map(daySummary));
+    const [a] = store.dayBounds(from), [, b] = store.dayBounds(key(6));
+    const proj = new Map();
+    for (const e of db.entries) {
+      const secs = overlap(e.start, e.stop, a, b);
+      const t = nameOf('tasks', e.taskId), p = nameOf('projects', e.projectId || t?.projectId);
+      if (secs && p) proj.set(p.name, (proj.get(p.name) || 0) + secs);
+    }
+    return { ...r, projects: [...proj].sort((x, y) => y[1] - x[1]).slice(0, 5).map(([name, secs]) => ({ name, secs })) };
+  },
+
+  // Rize renders its report as HTML in Chromium and prints it to PDF; the dashboard does the same with print CSS.
+  async savePdf(from) {
+    checkKey(from);
+    const { filePath, canceled } = await dialog.showSaveDialog(dashboard, { defaultPath: `${from} - Weekly Productivity Assessment.pdf`, filters: [{ name: 'PDF', extensions: ['pdf'] }] });
+    if (canceled || !filePath) return null;
+    fs.writeFileSync(filePath, await dashboard.webContents.printToPDF({ printBackground: true, pageSize: 'A4', margins: { marginType: 'none' } }));
+    return { path: filePath };
   },
 
   apps(start, stop) { return appsInRange(eventsBetween(Number(start), Number(stop)), Number(start), Number(stop)).slice(0, 8); },

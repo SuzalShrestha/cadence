@@ -45,6 +45,7 @@ async function body() {
       row('24-hour clock', 'Show 14:30 instead of 2:30 PM.', sw('twentyFourHourEnabled')),
       row('Tracking', s.trackingEnabled ? 'Cadence records the app in front every 15 seconds.' : 'Paused. Nothing is recorded.', sw('trackingEnabled')),
       row('Session summary toasts', 'Show a focus score card after focus sessions and when you reach your target.', sw('toasterEnabled')),
+      row('Weekly report', 'On Monday, show a notification for last week\'s productivity assessment.', sw('weeklyReportEnabled')),
       row('Open at login', 'Start Cadence when you sign in. Only works in a packaged build.', sw('openAtLogin')),
     ]) + group('Permissions', [
       row('Accessibility', st.permissions.accessibility ? 'Granted. Cadence can read window titles.' : 'Needed to read window titles.', st.permissions.accessibility ? `<span class="pill" style="color:var(--positive)">${icon('check', 12)}Granted</span>` : `<button class="btn sm" data-perm="accessibility">Grant access</button>`),

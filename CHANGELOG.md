@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- Weekly Report page (Insights): last week's work hours, breakdown, top labels and projects, focus, meetings and breaks, compared with the 4-week average. It has a coach insight and recommendation, and Save PDF.
+- A Monday notification opens the report for the last full week. Turn it off in Settings → General.
+
 ## 0.2.1 - 2026-10-13
 
 ### Security

@@ -71,6 +71,7 @@ macOS asks for these permissions on the first run:
 - Time Entries: week list, billable flag, accept suggestions.
 - Reports: group by project, client, task, label or app; any date range; CSV export.
 - Productivity: weekly, monthly and yearly focus, meetings, breaks, focus score and target.
+- Weekly Report: the sections of Rize's weekly assessment, computed on your Mac, with a coach recommendation and Save PDF. A notification on Monday.
 - Projects, Clients, Tasks: colors, rates, budgets, keywords, archive and done.
 
 **Settings**: theme (dark, light, system), 24-hour clock, session lengths, blocker, work-hour targets for each weekday, shortcut, widget.
