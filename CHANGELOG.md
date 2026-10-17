@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.3.0](https://github.com/SuzalShrestha/cadence/compare/v0.2.1...v0.3.0) (2026-10-17)
+
+
+### Features
+
+* add a just-track mode; productivity coaching is now optional and off by default ([7a3aab8](https://github.com/SuzalShrestha/cadence/commit/7a3aab8711b7fc34a07749174ecbb97c09c11754))
+* **reports:** add the Weekly Report page with a Monday notification for last week's assessment ([7a3aab8](https://github.com/SuzalShrestha/cadence/commit/7a3aab8711b7fc34a07749174ecbb97c09c11754))
+* **tracker:** record the open file or folder of the front window and show time per file and git project in Activity ([7a3aab8](https://github.com/SuzalShrestha/cadence/commit/7a3aab8711b7fc34a07749174ecbb97c09c11754))
+* **updater:** update Cadence automatically from GitHub Releases, with a Check now button and release notes in Settings ([7a3aab8](https://github.com/SuzalShrestha/cadence/commit/7a3aab8711b7fc34a07749174ecbb97c09c11754))
+
+
+### Bug Fixes
+
+* **tracker:** a tab in a window title can no longer fake the recorded file path ([7a3aab8](https://github.com/SuzalShrestha/cadence/commit/7a3aab8711b7fc34a07749174ecbb97c09c11754))
+
+
+### Performance
+
+* **tracker:** read the front window every 5 seconds instead of 15, so short app switches are recorded ([7a3aab8](https://github.com/SuzalShrestha/cadence/commit/7a3aab8711b7fc34a07749174ecbb97c09c11754))
+
 ## 0.2.1 - 2026-10-13
 
 ### Security
