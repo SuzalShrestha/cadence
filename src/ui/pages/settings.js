@@ -55,7 +55,7 @@ async function body() {
       row('Check for updates automatically', 'On launch and every 6 hours. Updates download in the background and install when you restart Cadence.', sw('autoUpdateEnabled')),
       ...(st.update.status === 'ready' && st.update.notes ? [`<div class="setting"><div><div class="t">What's new in ${esc(st.update.version)}</div><div class="d" style="white-space:pre-wrap;max-height:180px;overflow:auto">${esc(st.update.notes)}</div></div></div>`] : []),
     ]) + group('Permissions', [
-      row('Accessibility', st.permissions.accessibility ? 'Granted. Cadence can read window titles.' : 'Needed to read window titles.', st.permissions.accessibility ? `<span class="pill" style="color:var(--positive)">${icon('check', 12)}Granted</span>` : `<button class="btn sm" data-perm="accessibility">Grant access</button>`),
+      row('Accessibility', st.permissions.accessibility ? 'Granted. Cadence can read window titles.' : 'Needed to read window titles. If Cadence is already on in the list, remove it with − and add it again.', st.permissions.accessibility ? `<span class="pill" style="color:var(--positive)">${icon('check', 12)}Granted</span>` : `<button class="btn sm" data-perm="accessibility">Grant access</button>`),
       ...(mac ? [row('Automation', 'Needed for browser URLs. macOS asks once per browser.', `<button class="btn sm" data-perm="automation">Open settings</button>`)] : []),
     ]) + `<div class="silent" style="font-size:12px;padding:0 4px">Cadence ${esc(st.version)} · All data stays on this computer.</div>`;
 
