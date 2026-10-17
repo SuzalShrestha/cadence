@@ -47,7 +47,7 @@ function draw() {
       <div class="seg" role="group" aria-label="Range">${['day', 'week', 'month', 'year'].map((v) => `<button data-view="${v}" aria-pressed="${v === view}">${v[0].toUpperCase() + v.slice(1)}</button>`).join('')}</div>
       <div class="seg"><button data-step="-1" aria-label="Previous">${icon('chevron-left')}</button><button data-today title="Go to today">${icon('calendar-days')}</button><button data-step="1" aria-label="Next">${icon('chevron-right')}</button></div>
     </header>
-    ${!perm.accessibility ? `<div class="banner">${icon('shield')}<div class="grow"><b>Allow Accessibility access</b><div class="silent">Cadence needs it to read window titles. App names and URLs still work without it.</div></div><button class="btn sm" data-perm>Open System Settings</button></div>` : ''}
+    ${!perm.accessibility ? `<div class="banner">${icon('shield')}<div class="grow"><b>Allow Accessibility access</b><div class="silent">Cadence needs it to read window titles. App names and URLs still work without it. If Cadence is already on in the list, remove it with − and add it again.</div></div><button class="btn sm" data-perm>Open System Settings</button></div>` : ''}
     <div class="page split" id="split"><section id="canvas" style="min-height:0;overflow:hidden;position:relative"></section><aside class="sum" id="sum"></aside></div>`;
   $$('[data-view]', el).forEach((b) => b.onclick = () => { view = b.dataset.view; localStorage.setItem('home.view', view); scrolled = false; load(); });
   $$('[data-step]', el).forEach((b) => b.onclick = () => { key = stepRange(view, key, Number(b.dataset.step)); scrolled = false; load(); });
