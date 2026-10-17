@@ -22,9 +22,13 @@ module.exports = async function sign(context) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cadence-sign-'));
   const kc = path.join(dir, 'sign.keychain-db');
   const kcPass = crypto.randomBytes(16).toString('hex');
+  // On the CI runner, codesign finds the identity only in a keychain on the user search list
+  // ("no identity found" even with --keychain). Add the keychain for the signing, then restore the list.
+  const searchList = [...run('security', ['list-keychains', '-d', 'user']).matchAll(/"([^"]+)"/g)].map((m) => m[1]);
   try {
     fs.writeFileSync(path.join(dir, 'cert.p12'), Buffer.from(p12, 'base64'), { mode: 0o600 });
     run('security', ['create-keychain', '-p', kcPass, kc]);
+    run('security', ['list-keychains', '-d', 'user', '-s', kc, ...searchList]);
     run('security', ['unlock-keychain', '-p', kcPass, kc]);
     run('security', ['import', path.join(dir, 'cert.p12'), '-k', kc, '-P', process.env.CADENCE_SIGN_PASSWORD || '', '-T', '/usr/bin/codesign']);
     run('security', ['set-key-partition-list', '-S', 'apple-tool:,apple:,codesign:', '-s', '-k', kcPass, kc]);
@@ -35,6 +39,7 @@ module.exports = async function sign(context) {
     run('codesign', ['--verify', '--deep', '--strict', app]);
     console.log(`  • sign-mac: signed with ${id}`);
   } finally {
+    try { run('security', ['list-keychains', '-d', 'user', '-s', ...searchList]); } catch {}
     try { run('security', ['delete-keychain', kc]); } catch {}
     fs.rmSync(dir, { recursive: true, force: true });
   }
