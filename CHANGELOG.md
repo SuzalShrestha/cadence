@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/SuzalShrestha/cadence/compare/v0.3.0...v0.3.1) (2026-10-17)
+
+
+### Bug Fixes
+
+* **release:** add the signing keychain to the search list ([#6](https://github.com/SuzalShrestha/cadence/issues/6)) ([fc121c4](https://github.com/SuzalShrestha/cadence/commit/fc121c49c8a3ff46f6b9b7fc87ad201f6821d7dc))
+
 ## [0.3.0](https://github.com/SuzalShrestha/cadence/compare/v0.2.1...v0.3.0) (2026-10-17)
 
 
