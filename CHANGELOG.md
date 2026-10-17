@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.2](https://github.com/SuzalShrestha/cadence/compare/v0.3.1...v0.3.2) (2026-10-17)
+
+
+### Bug Fixes
+
+* **ui:** tell users to re-add Cadence when Accessibility looks on ([#8](https://github.com/SuzalShrestha/cadence/issues/8)) ([d24d866](https://github.com/SuzalShrestha/cadence/commit/d24d86659de2234ba0cf35ddb1b29955ec99d8b9))
+
 ## [0.3.1](https://github.com/SuzalShrestha/cadence/compare/v0.3.0...v0.3.1) (2026-10-17)
 
 
