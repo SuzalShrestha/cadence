@@ -8,6 +8,7 @@ const H = 3600;
 // Defaults observed in Rize "Identity State" / "Tracker State" unless marked "local".
 const DEFAULTS = {
   trackingEnabled: true,
+  productivityMode: false,                    // local: off = just track; no "since break", break reminders or target nudges
   theme: 'dark',                              // local: 'dark' | 'light' | 'system'
   defaultFocusSessionTime: 2700,
   defaultMeetingSessionTime: 1800,

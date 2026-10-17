@@ -9,15 +9,18 @@ function draw() {
   if (!st) return;
   const s = st.session;
   const color = s ? SESSION[s.type].color : st.settings.trackingEnabled ? 'var(--positive)' : '#75747c';
-  const k = s ? `${SESSION[s.type].label} left` : st.settings.trackingEnabled ? 'Since break' : 'Paused';
-  const v = s ? clock(s.stop - nowS()) : clock(nowS() - st.lastBreakEnd);
+  const coach = st.settings.productivityMode;
+  const k = s ? `${SESSION[s.type].label} left` : !st.settings.trackingEnabled ? 'Paused' : coach ? 'Since break' : 'Tracked today';
+  const v = s ? clock(s.stop - nowS()) : coach ? clock(nowS() - st.lastBreakEnd) : short(st.todayActive);
   // textContent only: nothing here is user text, but keep the widget free of HTML sinks.
   w.replaceChildren();
   const bar = el('span', 'bar4'); bar.style.background = color;
   const mid = el('div'); mid.append(el('div', 'k', k), el('div', 'v', v));
   const side = el('div', 'side');
-  const a = el('div'); a.append(el('b', '', short(st.todayActive)), ' today');
-  const b = el('div', '', st.target ? `${pct(st.todayActive, st.target)}% of target` : 'No target today');
+  const a = el('div');
+  if (coach || s) a.append(el('b', '', short(st.todayActive)), ' today');
+  else a.append(el('b', '', st.current?.app?.name || '—'));
+  const b = el('div', '', coach ? (st.target ? `${pct(st.todayActive, st.target)}% of target` : 'No target today') : (st.current?.rule?.name !== st.current?.app?.name && st.current?.rule?.name || ''));
   side.append(a, b);
   w.append(bar, mid, side);
 }

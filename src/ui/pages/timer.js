@@ -82,7 +82,7 @@ function planRow(p) {
 }
 
 function sinceBreak(st) {
-  if (st.session) return '';
+  if (st.session || !st.settings.productivityMode) return '';
   const secs = nowS() - st.lastBreakEnd;
   return `<div class="card"><div class="label">Since last break</div><div class="mid tnum" data-clock="up" data-at="${st.lastBreakEnd}">${clock(secs)}</div>
     <div class="silent" style="font-size:12px;margin-top:4px">${st.settings.breakReminderMinutes ? `Cadence reminds you after ${durText(st.settings.breakReminderMinutes * 60)}.` : 'Break reminders are off.'}</div></div>`;

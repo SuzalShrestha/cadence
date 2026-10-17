@@ -321,20 +321,22 @@ function drawDaySummary() {
   const s = data.summary, sum = $('#sum', el);
   const label = key === today() ? 'Today' : shortDate(key);
   const span = data.events.length ? data.events.at(-1).e - data.events[0].s : 0;
+  const coach = ctx.app.state.settings.productivityMode;
   sum.innerHTML = `
     <div class="sum-head"><div class="row"><span class="silent">${icon('chevrons-right', 14)}</span><h2>Summary · ${esc(label)}</h2></div>
       <button class="btn ghost sm" id="custom">${icon('sliders-horizontal', 14)}Customize</button></div>
     <div class="card"><div class="row" style="align-items:flex-start">
-      <div class="grow"><div class="label">Work Hours</div><div class="big">${dur(s.active)}</div><div style="margin-top:4px">${delta(s.active, data.yesterday, 'vs yesterday')}</div></div>
-      <div style="text-align:right"><div class="label">Percent of Target</div>${s.pto ? '<div class="mid">Day off</div><div class="silent">Marked as PTO</div>'
+      <div class="grow"><div class="label">${coach ? 'Work Hours' : 'Tracked'}</div><div class="big">${dur(s.active)}</div><div style="margin-top:4px">${delta(s.active, data.yesterday, 'vs yesterday')}</div></div>
+      <div style="text-align:right">${!coach ? `<div class="label">Active</div>${s.first ? `<div class="mid tnum">${hm(s.first)} – ${hm(s.last)}</div>` : '<div class="mid">—</div>'}`
+        : `<div class="label">Percent of Target</div>`}${!coach ? '' : s.pto ? '<div class="mid">Day off</div><div class="silent">Marked as PTO</div>'
         : s.target ? `<div><span class="mid">${pct(s.active, s.target)}%</span> <span class="silent">of ${durText(s.target)}</span></div>` : '<div class="mid">—</div><div class="silent">No target today</div>'}</div>
     </div></div>
     ${breakdownCard(data.entries)}
-    <div class="grid2">
+    ${coach ? `<div class="grid2">
       <div class="card"><div class="label">Percent of work day</div><div class="mid">${span ? pct(s.active, span) : 0}<span class="u">%</span></div><div class="silent" style="font-size:12px">of ${durText(span)} span</div></div>
       <div class="card"><div class="label">Focus Time</div><div class="mid">${dur(s.focus)}</div>${delta(s.focus, data.avgFocus, 'vs average')}</div>
     </div>
-    ${metricsCard(s)}
+    ${metricsCard(s)}` : ''}
     ${categoriesCard(s.categories)}
     ${listCard('Top apps & websites', [...s.sites, ...s.apps].sort((a, b) => b.secs - a.secs).filter((x, i, a) => a.findIndex((y) => y.name === x.name) === i).slice(0, 6))}`;
   wireBreakdown(data.entries);
@@ -449,18 +451,20 @@ function drawRangeSummary() {
   const worked = days.filter((d) => d.active > 600).length;
   const scores = days.map((d) => d.focusScore).filter((x) => x != null);
   const s = { focus: t('focus'), meeting: t('meeting'), break: t('break'), others: Math.max(0, active - t('focus') - t('meeting')) };
+  const coach = ctx.app.state.settings.productivityMode;
   sum.innerHTML = `
     <div class="sum-head"><div class="row"><span class="silent">${icon('chevrons-right', 14)}</span><h2>Summary · ${view[0].toUpperCase() + view.slice(1)}</h2></div></div>
     <div class="card"><div class="row" style="align-items:flex-start">
-      <div class="grow"><div class="label">Work Hours</div><div class="big">${dur(active)}</div><div class="silent" style="font-size:12px;margin-top:4px">${worked ? `${durText(active / worked)} avg per work day` : 'No work days yet'}</div></div>
-      <div style="text-align:right"><div class="label">Percent of Target</div><div><span class="mid">${pct(active, target)}%</span></div><div class="silent" style="font-size:12px">of ${durText(target)}</div></div>
+      <div class="grow"><div class="label">${coach ? 'Work Hours' : 'Tracked'}</div><div class="big">${dur(active)}</div><div class="silent" style="font-size:12px;margin-top:4px">${worked ? `${durText(active / worked)} avg per work day` : 'No work days yet'}</div></div>
+      ${coach ? `<div style="text-align:right"><div class="label">Percent of Target</div><div><span class="mid">${pct(active, target)}%</span></div><div class="silent" style="font-size:12px">of ${durText(target)}</div></div>`
+        : `<div style="text-align:right"><div class="label">Days tracked</div><div class="mid">${worked}</div></div>`}
     </div></div>
     ${breakdownCard(data.entries, 'No time entries in this range.')}
-    <div class="grid2">
+    ${coach ? `<div class="grid2">
       <div class="card"><div class="label">Focus Time</div><div class="mid">${dur(s.focus)}</div><div class="silent" style="font-size:12px">${scores.length ? `Avg score ${Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)}` : 'No focus sessions'}</div></div>
       <div class="card"><div class="label">Meetings</div><div class="mid">${dur(s.meeting)}</div><div class="silent" style="font-size:12px">${days.reduce((a, d) => a + d.counts.meeting, 0)} meetings</div></div>
     </div>
-    ${metricsCard(s)}
+    ${metricsCard(s)}` : ''}
     ${categoriesCard(data.categories)}`;
   wireBreakdown(data.entries);
 }

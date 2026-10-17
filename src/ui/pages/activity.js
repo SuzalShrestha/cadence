@@ -12,14 +12,14 @@ function draw() {
   const total = data.rows.reduce((a, r) => a + r.secs, 0);
   el.innerHTML = `
     <header class="bar"><div class="title">Activity</div><span class="silent">${esc(longDate(key))}</span><div class="grow"></div>
-      <div class="seg" role="group"><button data-tab="apps" aria-pressed="${tab === 'apps'}">Apps &amp; Websites</button><button data-tab="log" aria-pressed="${tab === 'log'}">Activity log</button></div>
+      <div class="seg" role="group"><button data-tab="apps" aria-pressed="${tab === 'apps'}">Apps &amp; Websites</button><button data-tab="files" aria-pressed="${tab === 'files'}">Files &amp; Projects</button><button data-tab="log" aria-pressed="${tab === 'log'}">Activity log</button></div>
       <div class="seg"><button data-step="-1" aria-label="Previous day">${icon('chevron-left')}</button><button data-today title="Today">${icon('calendar-days')}</button><button data-step="1" aria-label="Next day">${icon('chevron-right')}</button></div>
     </header>
     <div class="page"><div style="max-width:1080px;margin:0 auto">
       <div class="toolbar"><label class="input" style="display:flex;align-items:center;gap:8px;width:300px">${icon('search', 15)}<input id="q" placeholder="Filter apps and websites" value="${esc(q)}" style="border:0;background:none;outline:0;color:inherit;flex:1;font:inherit"></label>
         <div class="grow"></div><span class="silent">${data.rows.length} apps &amp; websites · ${short(total)} active</span>
         <button class="btn sm" id="rules">${icon('sliders-horizontal', 14)}Rules</button></div>
-      ${tab === 'apps' ? appsView(rows, total) : logView()}
+      ${tab === 'apps' ? appsView(rows, total) : tab === 'files' ? filesView() : logView()}
     </div></div>`;
   $$('[data-tab]', el).forEach((b) => b.onclick = () => { tab = b.dataset.tab; draw(); });
   $$('[data-step]', el).forEach((b) => b.onclick = () => { key = stepRange('day', key, Number(b.dataset.step)); load(); });
@@ -32,7 +32,7 @@ function draw() {
 }
 
 function appsView(rows, total) {
-  if (!rows.length) return `<div class="card">${emptyState('app-window', q ? 'No matches' : 'No activity yet', q ? 'Try another filter.' : 'Cadence records the app in front every 15 seconds. Come back after some work.')}</div>`;
+  if (!rows.length) return `<div class="card">${emptyState('app-window', q ? 'No matches' : 'No activity yet', q ? 'Try another filter.' : 'Cadence records the app in front every 5 seconds. Come back after some work.')}</div>`;
   const max = rows[0].secs;
   return `<div class="card flush">${rows.map((r) => `
     <div class="list-row" data-open="${esc(r.name)}" style="grid-template-columns:22px minmax(0,1.3fr) 132px minmax(0,1fr) 64px 44px 28px;cursor:pointer">
@@ -47,12 +47,23 @@ function appsView(rows, total) {
     ${open.has(r.name) ? `<div style="padding:4px 14px 12px 48px;border-bottom:1px solid var(--border);background:var(--bg-sunken)">${r.titles.length ? r.titles.map((t) => `<div class="legend-row" style="grid-template-columns:1fr auto"><span class="ellipsis quiet">${esc(t.title)}</span><span class="silent tnum">${short(t.secs)}</span></div>`).join('') : '<div class="silent" style="padding:6px 0">No window titles recorded.</div>'}</div>` : ''}`).join('')}</div>`;
 }
 
+// Paths come from the front window's AXDocument: open files, terminal folders. Projects are the git folders above them.
+function filesView() {
+  const f = (list) => list.filter((x) => !q || x.path.toLowerCase().includes(q));
+  const files = f(data.files), projects = f(data.projects);
+  if (!files.length && !projects.length) return `<div class="card">${emptyState('file-text', 'No files recorded', 'Editors, terminals, Preview and Office apps report the open file or folder. Work in one and come back.')}</div>`;
+  const list = (title, rows) => rows.length ? `<div class="card flush"><div class="card-head" style="padding:12px 14px 4px"><span class="label">${title}</span></div>${rows.map((r) => `
+    <div class="list-row" style="grid-template-columns:minmax(0,1fr) 64px"><div class="ellipsis"><div style="color:var(--text-strong)" class="ellipsis">${esc(r.name)}</div><div class="silent mono ellipsis" style="font-size:11px">${esc(r.path)}</div></div>
+      <span class="tnum" style="text-align:right;color:var(--text-strong)">${short(r.secs)}</span></div>`).join('')}</div>` : '';
+  return `<div class="stack-v" style="gap:12px">${list('Projects (git folders)', projects)}${list('Files &amp; folders', files)}</div>`;
+}
+
 function logView() {
-  const log = data.log.filter((e) => !q || `${e.a} ${e.t || ''} ${e.u || ''}`.toLowerCase().includes(q));
+  const log = data.log.filter((e) => !q || `${e.a} ${e.t || ''} ${e.u || ''} ${e.p || ''}`.toLowerCase().includes(q));
   if (!log.length) return `<div class="card">${emptyState('list', 'Nothing logged', 'The activity log lists every recorded block for this day.')}</div>`;
   return `<div class="card flush"><table class="table"><thead><tr><th style="width:120px">Time</th><th style="width:70px" class="r">Length</th><th>App</th><th>Title / URL</th><th style="width:150px">Label</th></tr></thead><tbody>
     ${log.map((e) => `<tr><td class="tnum quiet">${hm(e.s)} – ${hm(e.e)}</td><td class="r tnum">${short(e.e - e.s)}</td><td>${e.i ? '<span class="silent">Idle</span>' : esc(e.a)}</td>
-      <td class="ellipsis" style="max-width:420px"><span class="quiet">${esc(e.t || '')}</span>${e.u ? `<div class="silent ellipsis" style="font-size:11.5px">${esc(e.u)}</div>` : ''}</td>
+      <td class="ellipsis" style="max-width:420px"><span class="quiet">${esc(e.t || '')}</span>${e.u ? `<div class="silent ellipsis" style="font-size:11.5px">${esc(e.u)}</div>` : ''}${e.p ? `<div class="silent mono ellipsis" style="font-size:11px">${esc(e.p)}</div>` : ''}</td>
       <td><span class="row" style="gap:6px"><span class="dot" style="background:${catColor(e.i ? 'idle' : e.c)}"></span>${esc(catLabel(e.i ? 'idle' : e.c))}</span></td></tr>`).join('')}</tbody></table></div>`;
 }
 
