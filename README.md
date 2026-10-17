@@ -4,6 +4,13 @@
 
 <p align="center">A local-first automatic time tracker for macOS.<br>No account. No server. Your data stays on your Mac.</p>
 
+<p align="center">
+<a href="https://github.com/SuzalShrestha/cadence/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/SuzalShrestha/cadence/actions/workflows/ci.yml/badge.svg"></a>
+<a href="https://github.com/SuzalShrestha/cadence/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/SuzalShrestha/cadence"></a>
+<a href="https://scorecard.dev/viewer/?uri=github.com/SuzalShrestha/cadence"><img alt="OpenSSF Scorecard" src="https://api.scorecard.dev/projects/github.com/SuzalShrestha/cadence/badge"></a>
+<a href="https://www.conventionalcommits.org"><img alt="Conventional Commits" src="https://img.shields.io/badge/commits-conventional-blue"></a>
+</p>
+
 <p align="center"><a href="https://suzalshrestha.github.io/cadence/"><b>Website</b></a> · <a href="https://github.com/SuzalShrestha/cadence/releases/latest"><b>Download</b></a> · <a href="CHANGELOG.md"><b>Changelog</b></a></p>
 
 <p align="center"><img src="docs/screenshots/home-day.png" alt="Cadence home calendar with activity lanes and the daily summary"></p>
@@ -16,8 +23,8 @@ Cadence records the app and website you use, puts the time on a calendar, and he
 ## Install
 
 1. Download the newest `.dmg` from [Releases](https://github.com/SuzalShrestha/cadence/releases):
-   - Apple Silicon (M1 or newer): `Cadence-<version>-arm64.dmg`
-   - Intel: `Cadence-<version>.dmg`
+   - Apple Silicon (M1 or newer): [`Cadence-arm64.dmg`](https://github.com/SuzalShrestha/cadence/releases/latest/download/Cadence-arm64.dmg)
+   - Intel: [`Cadence-x64.dmg`](https://github.com/SuzalShrestha/cadence/releases/latest/download/Cadence-x64.dmg)
 2. Open the dmg and drag **Cadence** to **Applications**.
 3. The app is not signed with an Apple Developer ID, so macOS blocks the first launch. Do one of these:
    - In Finder, right-click **Cadence** and select **Open**. Then select **Open** again. On newer macOS, go to **System Settings → Privacy & Security** and click **Open Anyway**.
@@ -25,6 +32,18 @@ Cadence records the app and website you use, puts the time on a calendar, and he
      ```bash
      xattr -dr com.apple.quarantine /Applications/Cadence.app
      ```
+
+## Updates
+
+Cadence updates itself. It checks GitHub Releases on launch and every 6 hours, downloads a new version in the background, and installs it when you restart or quit. Settings → General → Updates shows the version and what is new, and has **Check now**. You can turn off automatic checks there.
+
+Releases are signed with the Cadence certificate (SHA-1 `B875E6B5…4FE32D`), so an update keeps your macOS permissions. To check a download:
+
+```bash
+gh attestation verify Cadence-arm64.dmg --repo SuzalShrestha/cadence
+```
+
+Version 0.2.x has no updater. Install the next release by hand one time; after that, updates are automatic.
 
 macOS asks for these permissions on the first run:
 
@@ -78,7 +97,7 @@ macOS asks for these permissions on the first run:
 
 ## Privacy
 
-- Cadence makes no network requests. There is no account, telemetry or analytics.
+- Cadence makes one kind of network request: the update check to GitHub Releases (Settings → General → Updates can turn it off). There is no account, telemetry or analytics.
 - Settings → Tracking & Privacy can strip window titles, keep only the host of URLs, or record no URLs.
 - A rule can turn off tracking for one app or website.
 
@@ -97,15 +116,16 @@ Set `CADENCE_DATA=<folder>` to use another folder.
 Requires Node.js 22 or newer and macOS.
 
 ```bash
-npm install
+npm install        # also installs the Git hooks
 npm start          # run in development
-npm test           # unit tests
+npm run check      # Biome lint and unit tests
+npm run smoke      # render check (set SMOKE_DIR to keep the screenshots)
 npm run dist       # build dist/*.dmg and dist/*.zip
 ```
 
-The build is ad-hoc signed and not notarized. To sign with your own Developer ID, set `build.mac.identity` in `package.json` and see the [electron-builder code signing guide](https://www.electron.build/code-signing).
+A local build is signed ad hoc unless `CADENCE_SIGN_P12` and `CADENCE_SIGN_PASSWORD` are set (see [CONTRIBUTING.md](CONTRIBUTING.md#signing)). An ad hoc build runs, but it cannot update itself and macOS asks again for permissions after each new build.
 
-Render check: `CADENCE_DATA=<scratch folder> CADENCE_SMOKE=<output folder> npm start` opens every page and window, saves screenshots, prints renderer errors, then quits. It shows the full-screen overlays for a few seconds.
+The render check opens every page and window, saves screenshots, prints renderer errors and exits 1 if there are any. It shows the full-screen overlays for a few seconds.
 
 ## Contributing
 
