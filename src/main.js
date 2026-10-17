@@ -3,7 +3,7 @@ const { app, BrowserWindow, Tray, Menu, Notification, globalShortcut, ipcMain, n
 const fs = require('node:fs');
 const path = require('node:path');
 const core = require('./core');
-const { TICK_MS, Idler, Segmenter, matchRule, isBlockRule, clock, hrMin, focusScore, detectSessions, summarize, appsInRange, suggestEntries, overlap, weeklyReport } = core;
+const { TICK_MS, Idler, Segmenter, matchRule, isBlockRule, clock, hrMin, focusScore, detectSessions, summarize, appsInRange, suggestEntries, overlap, weeklyReport, releaseNotesText } = core;
 const { getActiveApp } = require('./active');
 const createStore = require('./store');
 
@@ -212,9 +212,7 @@ function setupUpdater() {
   updater.on('download-progress', (p) => set({ status: 'downloading', percent: Math.round(p.percent) }));
   updater.on('update-available', (i) => set({ status: 'downloading', version: i.version, percent: 0 }));
   updater.on('update-downloaded', (i) => {
-    // Notes are GitHub release HTML: keep text only, the UI shows it as text.
-    const notes = (Array.isArray(i.releaseNotes) ? i.releaseNotes.map((n) => n.note).join('\n') : i.releaseNotes || '').replace(/<[^>]+>/g, '').trim();
-    set({ status: 'ready', version: i.version, notes: notes.slice(0, 4000), checkedAt: now() });
+    set({ status: 'ready', version: i.version, notes: releaseNotesText(i.releaseNotes), checkedAt: now() });
     notify(`Cadence ${i.version} is ready`, 'Click to restart and update. It also installs when you quit.', installUpdate);
   });
   updater.on('error', (e) => { console.error('[Updater]', e); set({ status: 'error', error: String(e?.message || e).split('\n')[0].slice(0, 300) }); });
