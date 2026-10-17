@@ -1,0 +1,24 @@
+# Temporary: test the release signing on the macOS runner. Remove before merge.
+name: Sign test
+on:
+  push:
+    branches: [fix-ci-signing]
+permissions:
+  contents: read
+jobs:
+  sign:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - env:
+          CADENCE_SIGN_P12: ${{ secrets.CADENCE_SIGN_P12 }}
+          CADENCE_SIGN_PASSWORD: ${{ secrets.CADENCE_SIGN_PASSWORD }}
+        run: npx electron-builder --mac dir --arm64 --publish never
+      - run: |
+          codesign --verify --deep --strict dist/mac-arm64/Cadence.app
+          codesign -d -r- dist/mac-arm64/Cadence.app 2>&1 | grep 'certificate root = H"b875e6b543cc9dbca96e2572d5ed303c5a4fe32d"'
