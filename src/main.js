@@ -68,6 +68,8 @@ async function tick() {
     tickTimer = setTimeout(tick, TICK_MS);
   }
 }
+// Today's tracked time, including the event that is still open.
+const liveActive = () => todayActive + (seg.prev && !seg.prev.idle && store.dayKey(new Date(seg.prev.startTimestamp * 1000)) === todayKey ? now() - seg.prev.startTimestamp : 0);
 const restartTick = () => { seg.clear(); clearTimeout(tickTimer); tick(); };
 
 function rollDay() {
@@ -82,7 +84,7 @@ function rollDay() {
 function checkWeekly() {
   const d = new Date();
   const from = store.dayKey(new Date(d.getFullYear(), d.getMonth(), d.getDate() - ((d.getDay() + 6) % 7) - 7));
-  if (!settings.weeklyReportEnabled || settings.weeklyReportSent >= from) return;
+  if (!settings.productivityMode || !settings.weeklyReportEnabled || settings.weeklyReportSent >= from) return;
   store.saveSettings({ weeklyReportSent: from });
   const r = api.weekly(from);
   if (r.work.total) notify('Your weekly productivity assessment is ready', r.coach.insight, () => openDashboard(`weekly/${from}`));
@@ -150,6 +152,7 @@ function checkPlanner() {
 }
 
 function checkReminders(idle) {
+  if (!settings.productivityMode) return; // just-track mode: no nudges
   const t = now();
   const mins = settings.breakReminderMinutes;
   if (mins && !session && !idle.idle && t - lastBreakEnd >= mins * 60 && t - flags.lastReminder >= mins * 60) {
@@ -280,7 +283,7 @@ function showToast(info) {
 function controlMenu() {
   const s = !!session;
   return [
-    { label: s ? `${cap(session.type)} · ${clock(session.stop - now())} left` : `Since last break · ${clock(now() - lastBreakEnd)}`, enabled: false },
+    { label: s ? `${cap(session.type)} · ${clock(session.stop - now())} left` : settings.productivityMode ? `Since last break · ${clock(now() - lastBreakEnd)}` : `Tracked today · ${hrMin(liveActive())}`, enabled: false },
     { type: 'separator' },
     ...(s ? [
       { label: 'Extend by 5 min', click: () => extendSession(300) },
@@ -292,6 +295,7 @@ function controlMenu() {
     ]),
     { label: 'Quick Start…', accelerator: settings.globalShortcutEnabled ? settings.globalShortcutAccelerator : undefined, click: toggleQuick },
     { type: 'separator' },
+    { label: 'Productivity Coaching', type: 'checkbox', checked: settings.productivityMode, click: () => saveSettings({ productivityMode: !settings.productivityMode }) },
     { label: settings.trackingEnabled ? 'Pause Tracking' : 'Resume Tracking', click: () => saveSettings({ trackingEnabled: !settings.trackingEnabled }) },
     { label: 'Show Dashboard', click: () => openDashboard() },
     { label: 'Widget', submenu: [
@@ -359,6 +363,15 @@ const keysBetween = (from, to) => {
 };
 const KEY = /^\d{4}-\d{2}-\d{2}$/;
 const checkKey = (k) => { if (!KEY.test(k)) throw new Error('bad date'); return k; };
+// Nearest folder with a .git entry above a tracked path. Cached: paths repeat all day.
+const gitRoots = new Map();
+function gitRoot(p) {
+  if (gitRoots.has(p)) return gitRoots.get(p);
+  let root = null;
+  for (let d = p; d && d !== path.dirname(d); d = path.dirname(d)) if (fs.existsSync(path.join(d, '.git'))) { root = d; break; }
+  gitRoots.set(p, root);
+  return root;
+}
 const nameOf = (kind, id) => db[kind].find((x) => x.id === id);
 
 function entryRate(e) {
@@ -368,7 +381,7 @@ function entryRate(e) {
 
 const api = {
   state: () => ({
-    session, settings, lastBreakEnd, now: now(), todayKey, todayActive, target: store.target(todayKey),
+    session, settings, lastBreakEnd, now: now(), todayKey, todayActive: liveActive(), target: store.target(todayKey),
     current: { app: current.app, rule: current.rule && { name: current.rule.name, category: current.rule.category }, idle: current.idle },
     overlay: overlayInfo, toast: toastInfo, platform: process.platform, version: app.getVersion(),
     permissions: { accessibility: process.platform !== 'darwin' || systemPreferences.isTrustedAccessibilityClient(false), tracking: !!current.app || !current.at },
@@ -443,10 +456,19 @@ const api = {
       if (e.title) r.titles.set(e.title, (r.titles.get(e.title) || 0) + d);
       rows.set(name, r);
     }
+    const files = new Map(), projects = new Map();
+    for (const e of events) {
+      if (e.idle || !e.path) continue;
+      const d = e.endTimestamp - e.startTimestamp;
+      files.set(e.path, (files.get(e.path) || 0) + d);
+      const root = gitRoot(e.path);
+      if (root) projects.set(root, (projects.get(root) || 0) + d);
+    }
+    const top = (m, n) => [...m].sort((x, y) => y[1] - x[1]).slice(0, n).map(([p, secs]) => ({ path: p, name: path.basename(p), secs }));
     const list = [...rows.values()].sort((x, y) => y.secs - x.secs)
       .map((r) => ({ ...r, titles: [...r.titles].sort((x, y) => y[1] - x[1]).slice(0, 6).map(([title, secs]) => ({ title, secs })) }));
-    const log = events.slice(-400).reverse().map((e) => ({ s: e.startTimestamp, e: e.endTimestamp, a: e.appName, t: e.title, u: e.url, c: e.category, i: e.idle || undefined }));
-    return { rows: list, log };
+    const log = events.slice(-400).reverse().map((e) => ({ s: e.startTimestamp, e: e.endTimestamp, a: e.appName, t: e.title, u: e.url, p: e.path, c: e.category, i: e.idle || undefined }));
+    return { rows: list, log, files: top(files, 30), projects: top(projects, 15) };
   },
 
   report({ from, to, groupBy }) {
@@ -587,7 +609,8 @@ app.whenReady().then(() => {
       stopSession();
       if (type !== 'focus' || !settings.toasterEnabled) notify(`${cap(type)} session complete`, type === 'break' ? 'Welcome back.' : 'Good time for a break.');
     }
-    if (process.platform === 'darwin') tray.setTitle(session ? `${clock(session.stop - now())}` : settings.trackingEnabled ? clock(now() - lastBreakEnd) : 'Paused', { fontType: 'monospacedDigit' });
+    const idleTitle = settings.productivityMode ? clock(now() - lastBreakEnd) : clock(liveActive()).replace(/:\d\d$/, ''); // h:mm tracked today
+    if (process.platform === 'darwin') tray.setTitle(session ? `${clock(session.stop - now())}` : settings.trackingEnabled ? idleTitle : 'Paused', { fontType: 'monospacedDigit' });
   }, 1000);
 
   openDashboard();

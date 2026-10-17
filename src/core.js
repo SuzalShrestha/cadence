@@ -1,7 +1,7 @@
 // Pure tracking logic. No Electron here, so node:test can run it.
 // Constants and state machines follow Rize 3.0.45 main/index.js (see docs/findings.md).
 
-const TICK_MS = 15e3;          // Tracker.next()
+const TICK_MS = 5e3;           // Rize ticks every 15 s; 5 s also catches short app switches
 const IDLE_TEST = 30;          // Idler: >30s  -> "maybe idle" (events frozen)
 const IDLE_FULL = 300;         // Idler: >300s -> idle
 const IDLE_DEAD = 3600;        // Idler: >1h   -> stop recording idle
@@ -39,13 +39,14 @@ class Segmenter {
     let url = app.url || null;
     if (url && (p.doNotTrackAnyUrls || rule.doNotTrackAnyUrls)) url = null;
     else if (url && (p.urlHostOnly || rule.trackFullUrl === false)) { try { url = new URL(url).origin; } catch { url = null; } }
+    const hideTitle = p.stripTitles || rule.trackTitles === false;
     return {
       appName: app.name, bundleId: app.bundleId, category: rule.category, idle: !!idle,
-      title: p.stripTitles || rule.trackTitles === false ? '' : app.title || '', url, ruleName: rule.name,
+      title: hideTitle ? '' : app.title || '', path: hideTitle ? null : app.path || null, url, ruleName: rule.name,
       trackingRuleHostKey: rule.hostKey, focus: !!rule.focus, meeting: !!rule.meeting, startTimestamp: toTs(time),
     };
   }
-  differs(a, b) { return a?.bundleId !== b?.bundleId || a?.title !== b?.title || a?.url !== b?.url; }
+  differs(a, b) { return a?.bundleId !== b?.bundleId || a?.title !== b?.title || a?.url !== b?.url || a?.path !== b?.path; }
   change(ctx) {
     const next = this.props(ctx);
     const prev = this.prev;

@@ -1,8 +1,8 @@
-import { api, esc, icon, clock, nowS, $, setClock24, SESSION } from './lib.js';
+import { api, esc, icon, clock, nowS, short, $, setClock24, SESSION } from './lib.js';
 
 const NAV = [
   ['Track', [['home', 'house', 'Home'], ['timer', 'timer', 'Timer'], ['activity', 'activity', 'Activity']]],
-  ['Insights', [['entries', 'list', 'Time Entries'], ['reports', 'chart-column', 'Reports'], ['productivity', 'trending-up', 'Productivity'], ['weekly', 'file-text', 'Weekly Report']]],
+  ['Insights', [['entries', 'list', 'Time Entries'], ['reports', 'chart-column', 'Reports'], ['productivity', 'trending-up', 'Productivity', true], ['weekly', 'file-text', 'Weekly Report', true]]],
   ['Work', [['projects', 'box', 'Projects'], ['clients', 'building-2', 'Clients'], ['tasks', 'square-check-big', 'Tasks']]],
 ];
 const PAGES = {
@@ -22,12 +22,15 @@ function drawSide() {
   const live = s
     ? `<div class="live-row"><span class="dot round" style="background:${SESSION[s.type].color}"></span><span>${SESSION[s.type].label}</span><span class="live-time" data-clock="down" data-at="${s.stop}">${clock(s.stop - nowS())}</span></div>
        <div class="silent ellipsis">${esc(s.title || 'Untitled session')}</div>`
-    : `<div class="live-row"><span class="live-dot ${tracking ? '' : 'off'}"></span><span>Since break</span><span class="live-time" data-clock="up" data-at="${st?.lastBreakEnd || nowS()}">${clock(nowS() - (st?.lastBreakEnd || nowS()))}</span></div>
+    : st?.settings.productivityMode
+    ? `<div class="live-row"><span class="live-dot ${tracking ? '' : 'off'}"></span><span>Since break</span><span class="live-time" data-clock="up" data-at="${st?.lastBreakEnd || nowS()}">${clock(nowS() - (st?.lastBreakEnd || nowS()))}</span></div>
+       <div class="silent ellipsis">${tracking ? `Tracking · ${esc(st?.current?.app?.name || 'waiting…')}` : 'Tracking is paused'}</div>`
+    : `<div class="live-row"><span class="live-dot ${tracking ? '' : 'off'}"></span><span>Today</span><span class="live-time">${short(st?.todayActive || 0)}</span></div>
        <div class="silent ellipsis">${tracking ? `Tracking · ${esc(st?.current?.app?.name || 'waiting…')}` : 'Tracking is paused'}</div>`;
   side.innerHTML = `
     <div class="side-top"><button class="btn ghost icon" id="collapse" aria-label="Collapse sidebar">${icon('panel-left')}</button></div>
     <div class="ws"><div class="ws-mark">C</div><div class="ws-name">Cadence</div></div>
-    <nav class="nav">${NAV.map(([g, items]) => `<div class="eyebrow">${g}</div>` + items.map(([r, ic, l]) =>
+    <nav class="nav">${NAV.map(([g, items]) => `<div class="eyebrow">${g}</div>` + items.filter((x) => !x[3] || st?.settings.productivityMode).map(([r, ic, l]) =>
       `<a href="#${r}" class="${app.route === r ? 'on' : ''}" title="${l}">${icon(ic)}<span class="label-t">${l}</span></a>`).join('')).join('')}
     </nav>
     <div class="side-foot">

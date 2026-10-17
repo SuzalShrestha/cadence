@@ -41,9 +41,12 @@ async function body() {
   const s = S(), st = ctx.app.state, mac = st.platform === 'darwin';
   switch (sec) {
     case 'general': return group('', [
+      row('Productivity coaching', s.productivityMode
+        ? 'On. The widget counts time since your last break, and Cadence sends break reminders, target cards and the weekly assessment.'
+        : 'Off. Cadence only records what you do. No break timer, reminders or targets. Sessions and the blocker still work when you start them.', sw('productivityMode')),
       row('Appearance', 'Dark is the default. System follows your OS.', `<div class="seg" role="group">${[['dark', 'moon', 'Dark'], ['light', 'sun', 'Light'], ['system', 'monitor', 'System']].map(([v, ic, l]) => `<button data-theme="${v}" aria-pressed="${s.theme === v}">${icon(ic, 14)}${l}</button>`).join('')}</div>`),
       row('24-hour clock', 'Show 14:30 instead of 2:30 PM.', sw('twentyFourHourEnabled')),
-      row('Tracking', s.trackingEnabled ? 'Cadence records the app in front every 15 seconds.' : 'Paused. Nothing is recorded.', sw('trackingEnabled')),
+      row('Tracking', s.trackingEnabled ? 'Cadence records the app, window, URL and open file every 5 seconds.' : 'Paused. Nothing is recorded.', sw('trackingEnabled')),
       row('Session summary toasts', 'Show a focus score card after focus sessions and when you reach your target.', sw('toasterEnabled')),
       row('Weekly report', 'On Monday, show a notification for last week\'s productivity assessment.', sw('weeklyReportEnabled')),
       row('Open at login', 'Start Cadence when you sign in. Only works in a packaged build.', sw('openAtLogin')),
