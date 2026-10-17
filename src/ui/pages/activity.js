@@ -1,8 +1,8 @@
 import { api, esc, icon, $, $$, today, stepRange, longDate, short, hm, catColor, catLabel, CATS, modal, emptyState, notice } from '../lib.js';
 
-let el, ctx, key = today(), tab = 'apps', q = '', data = null, open = new Set();
+let el, key = today(), tab = 'apps', q = '', data = null, open = new Set();
 
-export async function mount(root, c) { el = root; ctx = c; await load(); }
+export async function mount(root) { el = root; await load(); }
 export const refresh = () => load();
 
 async function load() { data = await api('activity', key); draw(); }
@@ -71,7 +71,7 @@ function logView() {
 async function ruleModal(row) {
   const rules = await api('rules');
   const key = row.kind === 'site' ? row.name : row.app;
-  let idx = rules.findIndex((r) => (row.rule && r.name === row.rule) || r.hostKey === key);
+  const idx = rules.findIndex((r) => (row.rule && r.name === row.rule) || r.hostKey === key);
   const r = idx >= 0 ? rules[idx] : { hostKey: key, name: row.name, category: row.category || 'miscellaneous',
     ...(row.kind === 'site' ? { url: `^https?://([a-z0-9-]+\\.)*${key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}` } : { app: `^${row.app.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$` }) };
   modal({ title: `${idx >= 0 ? 'Edit' : 'Add'} rule · ${row.name}`, body: ruleForm(r), wide: true,

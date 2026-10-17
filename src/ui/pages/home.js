@@ -161,7 +161,7 @@ function drawCalendar() {
     cal.scrollTop = Math.max(0, top);
     scrolled = true;
   } else cal.scrollTop = keepScroll;
-  wireCalendar(cal, day0, y);
+  wireCalendar(cal, day0);
 }
 
 function drawNow() {
@@ -172,7 +172,7 @@ function drawNow() {
   n.style.top = ((nowS() - tsOf(key)) / 3600) * HOUR + 'px';
 }
 
-function wireCalendar(cal, day0, y) {
+function wireCalendar(cal, day0) {
   const toTs = (py) => day0 + Math.round(((py / HOUR) * 3600) / 300) * 300; // snap to 5 min
   for (const laneId of ['entries', 'tasks', 'projects', 'clients', 'sessions']) {
     const ln = $(`[data-lane="${laneId}"]`, cal);
@@ -331,7 +331,7 @@ function drawDaySummary() {
         : `<div class="label">Percent of Target</div>`}${!coach ? '' : s.pto ? '<div class="mid">Day off</div><div class="silent">Marked as PTO</div>'
         : s.target ? `<div><span class="mid">${pct(s.active, s.target)}%</span> <span class="silent">of ${durText(s.target)}</span></div>` : '<div class="mid">—</div><div class="silent">No target today</div>'}</div>
     </div></div>
-    ${breakdownCard(data.entries)}
+    ${breakdownCard()}
     ${coach ? `<div class="grid2">
       <div class="card"><div class="label">Percent of work day</div><div class="mid">${span ? pct(s.active, span) : 0}<span class="u">%</span></div><div class="silent" style="font-size:12px">of ${durText(span)} span</div></div>
       <div class="card"><div class="label">Focus Time</div><div class="mid">${dur(s.focus)}</div>${delta(s.focus, data.avgFocus, 'vs average')}</div>
@@ -347,7 +347,7 @@ function drawDaySummary() {
   ]);
 }
 
-function breakdownCard(entries, empty = 'No time entries yet. Drag on the calendar to add one, or accept a suggestion.') {
+function breakdownCard(empty = 'No time entries yet. Drag on the calendar to add one, or accept a suggestion.') {
   return `<div class="card" id="bd"><div class="tabs" role="group">${[['tasks', 'square-check-big', 'Tasks'], ['projects', 'box', 'Projects'], ['clients', 'building-2', 'Clients']]
     .map(([d, ic, l]) => `<button data-dim="${d}" aria-pressed="${d === dim}">${icon(ic, 14)}${l}</button>`).join('')}</div><div id="bdbody"></div><template id="bdempty">${esc(empty)}</template></div>`;
 }
@@ -459,7 +459,7 @@ function drawRangeSummary() {
       ${coach ? `<div style="text-align:right"><div class="label">Percent of Target</div><div><span class="mid">${pct(active, target)}%</span></div><div class="silent" style="font-size:12px">of ${durText(target)}</div></div>`
         : `<div style="text-align:right"><div class="label">Days tracked</div><div class="mid">${worked}</div></div>`}
     </div></div>
-    ${breakdownCard(data.entries, 'No time entries in this range.')}
+    ${breakdownCard('No time entries in this range.')}
     ${coach ? `<div class="grid2">
       <div class="card"><div class="label">Focus Time</div><div class="mid">${dur(s.focus)}</div><div class="silent" style="font-size:12px">${scores.length ? `Avg score ${Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)}` : 'No focus sessions'}</div></div>
       <div class="card"><div class="label">Meetings</div><div class="mid">${dur(s.meeting)}</div><div class="silent" style="font-size:12px">${days.reduce((a, d) => a + d.counts.meeting, 0)} meetings</div></div>

@@ -83,6 +83,6 @@ module.exports = ({ app, api, getWindow, startSession, showToast, showOverlays, 
     await js("location.href = 'file:///etc/hosts'"); await wait(800);
     if (!dash.webContents.getURL().includes('/ui/app.html')) errors.push(`main: dashboard navigated to ${dash.webContents.getURL()}`);
     console.log(errors.length ? `SMOKE renderer errors:\n  ${[...new Set(errors)].join('\n  ')}` : 'SMOKE renderer errors: none');
-    app.quit();
+    app.exit(errors.length ? 1 : 0); // CI fails on renderer errors
   })().catch((e) => { console.error('SMOKE failed', e); app.exit(1); });
 };

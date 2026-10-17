@@ -383,8 +383,22 @@ function weeklyReport(week, past) {
   return { from: week[0]?.key, to: week.at(-1)?.key, hasPast, work, breakdown, categories, focus, meetings, breaks, coach: { insight, recommendation } };
 }
 
+// GitHub release notes arrive as HTML (a string, or a list of { note }). Keep plain text only.
+// A character scan, not a regex: text between < and > is dropped and < and > are never copied,
+// so no markup can survive however the tags nest. Literal < in notes is &lt; in HTML, so no text is lost.
+function releaseNotesText(notes) {
+  const html = Array.isArray(notes) ? notes.map((n) => n?.note || '').join('\n') : String(notes || '');
+  let text = '', inTag = false;
+  for (const ch of html) {
+    if (ch === '<') inTag = true;
+    else if (ch === '>') inTag = false;
+    else if (!inTag) text += ch;
+  }
+  return text.replace(/\n{3,}/g, '\n\n').trim().slice(0, 4000);
+}
+
 module.exports = {
-  weeklyReport,
+  weeklyReport, releaseNotesText,
   TICK_MS, IDLE_TEST, IDLE_FULL, IDLE_DEAD, CHUNK_SECS, DISCARD_SECS, Idler, Segmenter, matchRule, isBlockRule, clock, toTs,
   normalizeRule, detectSessions, focusScore, focusLabel, appsInRange, suggestEntries, summarize, hrMin, overlap,
 };

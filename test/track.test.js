@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert');
-const { Segmenter } = require('../src/core');
+const { Segmenter, releaseNotesText } = require('../src/core');
 const { parseDoc, splitFront } = require('../src/active');
 
 const rule = { name: 'Zed', category: 'code' };
@@ -34,4 +34,12 @@ test('parseDoc: file URLs become paths, web URLs become urls', () => {
 test('splitFront: a tab in the window title cannot inject a document path', () => {
   assert.deepStrictEqual(splitFront('Zed\tdev.zed.Zed\tnotes\tfile:///etc/passwd\tfile:///w/a.js'), ['Zed', 'dev.zed.Zed', 'notes\tfile:///etc/passwd', 'file:///w/a.js']);
   assert.deepStrictEqual(splitFront('Zed\tdev.zed.Zed\tnotes\t'), ['Zed', 'dev.zed.Zed', 'notes', '']);
+});
+
+test('releaseNotesText: plain text only, even with nested or broken tags', () => {
+  assert.strictEqual(releaseNotesText('<h2>Features</h2><ul><li>Auto-update</li></ul>'), 'FeaturesAuto-update');
+  assert.ok(!/[<>]/.test(releaseNotesText('<<script>script>alert(1)<</script>/script>')));
+  assert.ok(!/[<>]/.test(releaseNotesText('<img src=x onerror=alert(1)')));
+  assert.strictEqual(releaseNotesText([{ note: '<p>a</p>' }, { note: null }, { note: '<p>b</p>' }]), 'a\n\nb');
+  assert.strictEqual(releaseNotesText(null), '');
 });

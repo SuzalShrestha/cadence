@@ -34,6 +34,7 @@ const DEFAULTS = {
   urlHostOnlyEnabled: false,
   doNotTrackAnyUrlsGlobal: false,
   openAtLogin: false,
+  autoUpdateEnabled: true,                    // local: check GitHub Releases on launch and every 6 h
   weeklyReportEnabled: true,                  // local: Monday notification for last week's report
   weeklyReportSent: '',                       // local: Monday (YYYY-MM-DD) of the last week notified
 };
