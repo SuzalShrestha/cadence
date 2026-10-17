@@ -50,6 +50,10 @@ async function body() {
       row('Session summary toasts', 'Show a focus score card after focus sessions and when you reach your target.', sw('toasterEnabled')),
       row('Weekly report', 'On Monday, show a notification for last week\'s productivity assessment.', sw('weeklyReportEnabled')),
       row('Open at login', 'Start Cadence when you sign in. Only works in a packaged build.', sw('openAtLogin')),
+    ]) + group('Updates', [
+      row(`Cadence ${esc(st.version)}`, updateText(st.update), updateButton(st.update)),
+      row('Check for updates automatically', 'On launch and every 6 hours. Updates download in the background and install when you restart Cadence.', sw('autoUpdateEnabled')),
+      ...(st.update.status === 'ready' && st.update.notes ? [`<div class="setting"><div><div class="t">What's new in ${esc(st.update.version)}</div><div class="d" style="white-space:pre-wrap;max-height:180px;overflow:auto">${esc(st.update.notes)}</div></div></div>`] : []),
     ]) + group('Permissions', [
       row('Accessibility', st.permissions.accessibility ? 'Granted. Cadence can read window titles.' : 'Needed to read window titles.', st.permissions.accessibility ? `<span class="pill" style="color:var(--positive)">${icon('check', 12)}Granted</span>` : `<button class="btn sm" data-perm="accessibility">Grant access</button>`),
       ...(mac ? [row('Automation', 'Needed for browser URLs. macOS asks once per browser.', `<button class="btn sm" data-perm="automation">Open settings</button>`)] : []),
@@ -117,6 +121,15 @@ async function body() {
   return '';
 }
 
+function updateText(u) {
+  if (!u.packaged) return 'Development build. Updates work only in the installed app.';
+  return { checking: 'Checking for updates…', downloading: `Downloading ${esc(u.version || 'update')}… ${u.percent || 0}%`, ready: `Version ${esc(u.version)} is ready. Restart to install it.`,
+    current: 'You have the latest version.', error: `Update failed: ${esc(u.error || 'unknown error')}. You can download the new version from GitHub.` }[u.status] || 'Cadence checks GitHub Releases for new versions.';
+}
+const updateButton = (u) => u.status === 'ready' ? `<button class="btn accent sm" data-upd="installUpdate">${icon('download', 14)}Restart to update</button>`
+  : u.status === 'error' ? `<button class="btn sm" data-upd="openReleases">${icon('external-link', 14)}Open releases</button>`
+  : `<button class="btn sm" data-upd="checkForUpdates" ${u.status === 'checking' || u.status === 'downloading' ? 'disabled' : ''}>Check now</button>`;
+
 async function rulesView() {
   rules = await api('rules');
   const list = rules.map((r, i) => ({ r, i })).filter(({ r }) => !rq || `${r.name} ${r.hostKey || ''} ${r.category}`.toLowerCase().includes(rq));
@@ -156,6 +169,7 @@ function wire() {
   $$('[data-pick]', el).forEach((c) => c.onchange = () => { const n = Number(c.value); save({ [c.dataset.pick]: Number.isNaN(n) ? c.value : n }); });
   $$('[data-theme]', el).forEach((b) => b.onclick = () => save({ theme: b.dataset.theme }).then(draw));
   $$('[data-perm]', el).forEach((b) => b.onclick = () => api('openPermissions', b.dataset.perm));
+  $$('[data-upd]', el).forEach((b) => b.onclick = () => api(b.dataset.upd));
   $$('[data-go]', el).forEach((a) => a.onclick = (e) => { e.preventDefault(); const g = a.dataset.go; if (g === 'reports') location.hash = 'reports'; else { sec = g; history.replaceState(null, '', `#settings/${g}`); draw(); } });
   $('#rulesfile', el)?.addEventListener('click', () => api('openRulesFile'));
   $('#accel', el)?.addEventListener('change', (e) => save({ globalShortcutAccelerator: e.target.value.trim() }).then(() => notice('Shortcut updated')));

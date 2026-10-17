@@ -3,7 +3,7 @@ const { app, BrowserWindow, Tray, Menu, Notification, globalShortcut, ipcMain, n
 const fs = require('node:fs');
 const path = require('node:path');
 const core = require('./core');
-const { TICK_MS, Idler, Segmenter, matchRule, isBlockRule, clock, hrMin, focusScore, focusLabel, detectSessions, summarize, appsInRange, suggestEntries, overlap, weeklyReport } = core;
+const { TICK_MS, Idler, Segmenter, matchRule, isBlockRule, clock, hrMin, focusScore, detectSessions, summarize, appsInRange, suggestEntries, overlap, weeklyReport } = core;
 const { getActiveApp } = require('./active');
 const createStore = require('./store');
 
@@ -195,6 +195,44 @@ function overlayAction(action) {
   }
 }
 
+// ---------------------------------------------------------------- updates (electron-updater, GitHub Releases)
+// Only a packaged app updates. CADENCE_UPDATE_URL points at another feed (a local server in tests).
+const RELEASES = 'https://github.com/SuzalShrestha/cadence/releases/latest';
+let update = { status: 'idle', version: null, notes: '', error: null, checkedAt: 0 };
+let updater = null;
+function setupUpdater() {
+  if (!app.isPackaged) return;
+  ({ autoUpdater: updater } = require('electron-updater'));
+  updater.autoDownload = true;
+  updater.autoInstallOnAppQuit = true;
+  if (process.env.CADENCE_UPDATE_URL) updater.setFeedURL({ provider: 'generic', url: process.env.CADENCE_UPDATE_URL });
+  const set = (patch) => { update = { ...update, ...patch }; broadcast(); };
+  updater.on('checking-for-update', () => set({ status: 'checking', error: null }));
+  updater.on('update-not-available', () => set({ status: 'current', checkedAt: now() }));
+  updater.on('download-progress', (p) => set({ status: 'downloading', percent: Math.round(p.percent) }));
+  updater.on('update-available', (i) => set({ status: 'downloading', version: i.version, percent: 0 }));
+  updater.on('update-downloaded', (i) => {
+    // Notes are GitHub release HTML: keep text only, the UI shows it as text.
+    const notes = (Array.isArray(i.releaseNotes) ? i.releaseNotes.map((n) => n.note).join('\n') : i.releaseNotes || '').replace(/<[^>]+>/g, '').trim();
+    set({ status: 'ready', version: i.version, notes: notes.slice(0, 4000), checkedAt: now() });
+    notify(`Cadence ${i.version} is ready`, 'Click to restart and update. It also installs when you quit.', installUpdate);
+  });
+  updater.on('error', (e) => { console.error('[Updater]', e); set({ status: 'error', error: String(e?.message || e).split('\n')[0].slice(0, 300) }); });
+  checkForUpdates(false);
+  setInterval(() => checkForUpdates(false), 6 * 3600e3);
+}
+function checkForUpdates(manual = true) {
+  if (!updater) { if (manual) shell.openExternal(RELEASES); return; }
+  if (!manual && !settings.autoUpdateEnabled) return;
+  if (update.status === 'ready' || update.status === 'downloading') return;
+  updater.checkForUpdates().catch(() => {}); // the 'error' event reports it
+}
+function installUpdate() {
+  if (update.status !== 'ready') return;
+  stopSession(); seg.close(new Date()); store.flush();
+  setImmediate(() => updater.quitAndInstall());
+}
+
 // ---------------------------------------------------------------- windows
 const secureWeb = { preload: PRELOAD, contextIsolation: true, sandbox: true, nodeIntegration: false };
 const bg = () => (nativeTheme.shouldUseDarkColors ? '#121117' : '#f7f7fc');
@@ -303,6 +341,8 @@ function controlMenu() {
       { label: 'Auto-hide on Mouse Hover', type: 'checkbox', checked: settings.widgetAutoHide, click: () => saveSettings({ widgetAutoHide: !settings.widgetAutoHide }) },
       { label: 'Hide for 30 Minutes', enabled: !!widget, click: () => { widget?.hide(); setTimeout(() => widget?.showInactive(), 30 * 60e3); } },
     ] },
+    ...(update.status === 'ready' ? [{ label: `Restart to Update to ${update.version}`, click: installUpdate }] : []),
+    { label: 'Check for Updates…', enabled: update.status !== 'checking' && update.status !== 'downloading', click: () => checkForUpdates(true) },
     { label: 'Settings…', click: () => openDashboard('settings') },
     { type: 'separator' },
     { label: 'Quit Cadence', role: 'quit' },
@@ -383,7 +423,7 @@ const api = {
   state: () => ({
     session, settings, lastBreakEnd, now: now(), todayKey, todayActive: liveActive(), target: store.target(todayKey),
     current: { app: current.app, rule: current.rule && { name: current.rule.name, category: current.rule.category }, idle: current.idle },
-    overlay: overlayInfo, toast: toastInfo, platform: process.platform, version: app.getVersion(),
+    overlay: overlayInfo, toast: toastInfo, platform: process.platform, version: app.getVersion(), update: { ...update, packaged: app.isPackaged },
     permissions: { accessibility: process.platform !== 'darwin' || systemPreferences.isTrustedAccessibilityClient(false), tracking: !!current.app || !current.at },
   }),
 
@@ -561,6 +601,9 @@ const api = {
   toggleQuick: () => toggleQuick(),
   closeToast() { toastWin?.destroy(); },
   openRulesFile: () => shell.openPath(store.path('rules.json')),
+  checkForUpdates: () => checkForUpdates(true),
+  installUpdate: () => installUpdate(),
+  openReleases: () => shell.openExternal(RELEASES),
 };
 
 ipcMain.handle('api', (e, method, ...args) => {
@@ -615,6 +658,7 @@ app.whenReady().then(() => {
 
   openDashboard();
   tick();
+  setTimeout(setupUpdater, 10e3); // after startup work, so launch stays fast
 
   if (process.env.CADENCE_SMOKE) require('./smoke')({ app, api, getWindow: (n) => ({ dashboard, widget, quick, toast: toastWin, overlay: overlays[0] })[n], startSession, showToast, showOverlays, toggleQuick, matchRule });
 }).catch((e) => { console.error('[Cadence] startup failed', e); dialog.showErrorBox('Cadence could not start', String(e?.stack || e)); app.exit(1); });
