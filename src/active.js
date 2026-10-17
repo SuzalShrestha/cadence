@@ -39,11 +39,18 @@ const osa = (script) => new Promise((resolve) =>
 async function getActiveApp() {
   const out = await osa(FRONT);
   if (!out) return null;
-  const [name, bundleId, title, doc] = out.split('\t');
+  const [name, bundleId, title, doc] = splitFront(out);
   const s = urlScript(bundleId);
   const { path, url: docUrl } = parseDoc(doc);
   const url = (s ? await osa(s) : null) || docUrl;
   return name ? { name, bundleId, title: title || '', url: url || null, path } : null;
+}
+
+// App name and bundle id hold no tabs, and AXDocument is a URL (a tab would be %09). A title can hold tabs,
+// so it is everything between field 2 and the last field. A title cannot fake the document path.
+function splitFront(out) {
+  const p = out.split('\t');
+  return p.length < 4 ? [p[0], p[1], p.slice(2).join('\t'), ''] : [p[0], p[1], p.slice(2, -1).join('\t'), p.at(-1)];
 }
 
 // AXDocument is a file:// or http(s):// URL string.
@@ -53,4 +60,4 @@ function parseDoc(doc) {
   try { return { path: require('node:url').fileURLToPath(doc).replace(/(.)\/$/, '$1'), url: null }; } catch { return { path: null, url: null }; }
 }
 
-module.exports = { getActiveApp, parseDoc };
+module.exports = { getActiveApp, parseDoc, splitFront };

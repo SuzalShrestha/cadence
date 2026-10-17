@@ -1,7 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert');
 const { Segmenter } = require('../src/core');
-const { parseDoc } = require('../src/active');
+const { parseDoc, splitFront } = require('../src/active');
 
 const rule = { name: 'Zed', category: 'code' };
 const app = (p) => ({ name: 'Zed', bundleId: 'dev.zed.Zed', title: 'main.js', url: null, path: p });
@@ -29,4 +29,9 @@ test('parseDoc: file URLs become paths, web URLs become urls', () => {
   assert.deepStrictEqual(parseDoc('https://example.com/a'), { path: null, url: 'https://example.com/a' });
   assert.deepStrictEqual(parseDoc(''), { path: null, url: null });
   assert.deepStrictEqual(parseDoc('not a url'), { path: null, url: null });
+});
+
+test('splitFront: a tab in the window title cannot inject a document path', () => {
+  assert.deepStrictEqual(splitFront('Zed\tdev.zed.Zed\tnotes\tfile:///etc/passwd\tfile:///w/a.js'), ['Zed', 'dev.zed.Zed', 'notes\tfile:///etc/passwd', 'file:///w/a.js']);
+  assert.deepStrictEqual(splitFront('Zed\tdev.zed.Zed\tnotes\t'), ['Zed', 'dev.zed.Zed', 'notes', '']);
 });
