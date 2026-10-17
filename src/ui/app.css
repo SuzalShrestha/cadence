@@ -139,3 +139,26 @@ svg.chart { width: 100%; display: block; overflow: visible; }
 .bchart-x span { text-align: center; font-size: 11px; color: var(--text-silent); white-space: nowrap; }
 .blk.thin .t { font-size: 11px; }
 .blk.tiny .t { display: none; }
+
+/* Weekly report: one column, like Rize's weekly PDF */
+.wk { max-width: 760px; margin: 0 auto; display: grid; gap: 16px; }
+.wk-h { font-size: 18px; font-weight: 700; color: var(--text-strong); display: inline-flex; gap: 8px; align-items: center; }
+.wk-sec > .label { margin: 14px 0 8px; }
+.wk-coach { border-color: var(--accent); }
+.wk-coach p { margin: 4px 0 12px; line-height: 1.55; color: var(--text-strong); }
+.wk-quad { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 10px 0; }
+.wk-quad .u { font-size: .72em; font-weight: 400; color: var(--text-quiet); margin-left: 6px; }
+.wk-note { color: var(--text-quiet); line-height: 1.55; margin: 8px 0 14px; }
+.wk-score { display: flex; gap: 28px; align-items: center; }
+.wk-score .big { font-size: 48px; width: 96px; height: 96px; border-radius: 50%; border: 4px solid var(--focus); display: grid; place-items: center; }
+.wk-row { display: grid; grid-template-columns: 40px 1fr 120px; gap: 10px; align-items: center; margin: 5px 0; font-size: 12.5px; }
+.wk-row > .tnum { text-align: right; }
+.wk-track { position: relative; height: 10px; border-radius: 5px; background: var(--input); }
+.wk-track > i { position: absolute; top: 0; bottom: 0; border-radius: 5px; background: var(--violet); }
+.wk-div::after { content: ''; position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: var(--border-strong); }
+@media print {
+  .shell { display: block; height: auto; overflow: visible; }
+  .side, .bar .seg, .bar .btn { display: none; }
+  .main, .page { overflow: visible; height: auto; }
+  .wk-sec { break-inside: avoid; }
+}

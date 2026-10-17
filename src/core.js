@@ -238,12 +238,15 @@ function suggestEntries(events, { tasks = [], projects = [], clients = [] }, ent
 // Dashboard numbers for one day. Work hours = tracked non-idle time.
 function summarize(events, sessions = []) {
   const cats = new Map(), apps = new Map(), sites = new Map();
-  let active = 0, idle = 0;
+  let active = 0, idle = 0, first = null, lastTs = null;
   const blocks = [];
-  for (const e of sortEv(events)) {
+  const evs = sortEv(events);
+  for (const e of evs) {
     const d = len(e);
     if (e.idle) { idle += d; } else {
       active += d;
+      first ??= e.startTimestamp;
+      lastTs = Math.max(lastTs ?? 0, e.endTimestamp);
       add(cats, e.category, d);
       add(apps, e.appName, d);
       const h = e.url && host(e.url);
@@ -259,8 +262,20 @@ function summarize(events, sessions = []) {
   const secs = (t) => of(t).reduce((a, s) => a + (s.stop - s.start), 0);
   const focus = secs('focus'), meeting = secs('meeting'), brk = secs('break');
   const scores = of('focus').map((s) => s.score ?? focusScore(events, s.start, s.stop)).filter((x) => x != null);
+  // Context switches: moves from focus work to a non-focus app or site inside a focus session (Rize weekly report).
+  const distract = new Map();
+  const switches = of('focus').map((s) => {
+    let n = 0, wasFocus = true;
+    for (const e of evs) {
+      const d = overlap(e.startTimestamp, e.endTimestamp, s.start, s.stop);
+      if (!d || e.idle) continue;
+      if (!e.focus) { if (wasFocus) n++; add(distract, (e.url && host(e.url)) || e.appName, d); }
+      wasFocus = !!e.focus;
+    }
+    return n;
+  });
   return {
-    active, idle, blocks,
+    active, idle, blocks, first, last: lastTs, switches, distractors: top(distract, 10),
     categories: top(cats, 50), apps: top(apps, 10), sites: top(sites, 10),
     focus, meeting, break: brk, others: Math.max(0, active - focus - meeting),
     counts: { focus: of('focus').length, meeting: of('meeting').length, break: of('break').length },
@@ -274,7 +289,101 @@ function hrMin(secs) {
   return h ? `${h} hr ${m % 60} min` : `${m} min`;
 }
 
+// ---- Weekly productivity assessment ----
+// Layout and metrics follow Rize's weekly PDF (sections, "vs 4-week average", per day = week / 7,
+// shares compared in percentage points). Rize builds the text on its server; the templates and coach rules here are local designs.
+const DISTRACTING = ['entertainment', 'social', 'gaming'];
+
+function weekTotals(days) {
+  const t = { work: 0, target: 0, focus: 0, meeting: 0, break: 0, nFocus: 0, nMeet: 0, nBreak: 0, scoreSum: 0, scoreN: 0, switches: [], cats: new Map(), distract: new Map() };
+  for (const d of days) {
+    t.work += d.active; t.target += d.target || 0; t.focus += d.focus; t.meeting += d.meeting; t.break += d.break;
+    t.nFocus += d.counts.focus; t.nMeet += d.counts.meeting; t.nBreak += d.counts.break;
+    if (d.focusScore != null) { t.scoreSum += d.focusScore * d.counts.focus; t.scoreN += d.counts.focus; }
+    t.switches.push(...(d.switches || []));
+    for (const c of d.categories) add(t.cats, c.name, c.secs);
+    for (const x of d.distractors || []) add(t.distract, x.name, x.secs);
+  }
+  // Rize's breakdown is a share of work hours with breaks inside them: focus 33 min of 85 = 39%, other = the rest.
+  t.base = Math.max(t.work, t.focus + t.meeting + t.break);
+  t.other = t.base - t.focus - t.meeting - t.break;
+  return t;
+}
+
+// week: 7 day summaries (Mon..Sun). past: the 28 day summaries before it. Weekly 4-week averages are past totals / 4.
+function weeklyReport(week, past) {
+  const w = weekTotals(week), p = weekTotals(past), hasPast = p.work > 0;
+  const avg = (n, c) => (c ? n / c : 0);
+  const share = (x, t) => avg(x, t.base);
+  const pp = (a, b) => Math.round((a - b) * 100);
+  const change = (cur, base) => (base ? Math.round(((cur - base) / base) * 100) : null);
+  const vs = (cur, base) => {
+    const c = change(cur, base);
+    return c == null ? 'your first tracked week' : Math.abs(c) < 15 ? 'close to your 4-week average' : `${Math.abs(c)}% ${c > 0 ? 'above' : 'below'} your 4-week average`;
+  };
+
+  const days = week.map((d) => ({ key: d.key, active: d.active, target: d.target || 0, focus: d.focus, meeting: d.meeting, first: d.first, last: d.last,
+    breakPct: avg(d.break, d.active) }));
+  const worked = days.filter((d) => d.active > 0).length;
+  const overDays = days.filter((d) => d.active > (d.target || 8 * 3600) + 2 * 3600);
+  const pctTarget = w.target ? Math.round((w.work / w.target) * 100) : null;
+
+  const work = {
+    total: w.work, target: w.target, pctTarget, avg4: p.work / 4, perDay: avg(w.work, worked), perDay4: avg(p.work, past.filter((d) => d.active > 0).length), days,
+    text: `You worked ${hrMin(w.work)} this week. That is ${vs(w.work, p.work / 4)}${pctTarget == null ? '' : ` and ${pctTarget}% of your ${hrMin(w.target)} target`}.`,
+    overText: overDays.length
+      ? `You worked more than 2 hours past your target on ${overDays.length} day${overDays.length > 1 ? 's' : ''}. Long days raise stress. Plan rest after a long day.`
+      : 'No day went far past your target. This amount of work lets you stay productive without burnout.',
+  };
+
+  const rows = [['Focus', w.focus, p.focus], ['Meetings', w.meeting, p.meeting], ['Breaks', w.break, p.break], ['Other', w.other, p.other]]
+    .map(([name, cur, base]) => ({ name, secs: cur, share: share(cur, w), diff: hasPast ? pp(share(cur, w), share(base, p)) : null }));
+  const other = rows[3];
+  const breakdown = {
+    rows,
+    text: other.diff == null ? 'Next week this compares against your 4-week average.'
+      : Math.abs(other.diff) < 5 ? 'Your time outside focus sessions, meetings and breaks is about the same as usual.'
+      : `Your time outside focus sessions, meetings and breaks went ${other.diff < 0 ? 'down' : 'up'} by ${Math.abs(other.diff)} points. ${other.diff < 0 ? 'More of your work is in planned sessions than usual.' : 'Less of your work is in planned sessions than usual.'}`,
+  };
+
+  const categories = [...w.cats].sort((a, b) => b[1] - a[1]).slice(0, 5)
+    .map(([name, secs]) => ({ name, secs, share: avg(secs, w.work), diff: hasPast ? pp(avg(secs, w.work), avg(p.cats.get(name) || 0, p.work)) : null }));
+
+  const score = w.scoreN ? Math.round(w.scoreSum / w.scoreN) : null;
+  const sw = avg(w.switches.reduce((a, b) => a + b, 0), w.switches.length), sw4 = avg(p.switches.reduce((a, b) => a + b, 0), p.switches.length);
+  const focus = {
+    score, score4: p.scoreN ? Math.round(p.scoreSum / p.scoreN) : null, label: focusLabel(score),
+    total: w.focus, perDay: w.focus / 7, perDay4: p.focus / 28, avgLen: avg(w.focus, w.nFocus), avgLen4: avg(p.focus, p.nFocus),
+    switches: Math.round(sw * 10) / 10, switches4: Math.round(sw4 * 10) / 10, switchesMax: Math.max(0, ...w.switches),
+    distractors: [...w.distract].sort((a, b) => b[1] - a[1]).slice(0, 5).map(([name, secs]) => ({ name, secs })),
+  };
+  const meetings = { total: w.meeting, total4: p.meeting / 4, count: w.nMeet, count4: p.nMeet / 4, perDay: w.nMeet / 7, avgLen: avg(w.meeting, w.nMeet), avgLen4: avg(p.meeting, p.nMeet) };
+  const breaks = { pct: avg(w.break, w.work), pct4: avg(p.break, p.work), avgLen: avg(w.break, w.nBreak), avgLen4: avg(p.break, p.nBreak), count: w.nBreak };
+
+  // Coach: insight = the largest change vs the 4-week average; recommendation = first rule that fits.
+  const moves = [['work hours', w.work, p.work / 4], ['focus time', w.focus, p.focus / 4], ['meeting time', w.meeting, p.meeting / 4], ['break time', w.break, p.break / 4]]
+    .filter(([, , b]) => b > 0).map(([name, cur, base]) => ({ name, cur, base, c: change(cur, base) }))
+    .sort((a, b) => Math.abs(b.c) - Math.abs(a.c));
+  const m = moves[0];
+  const insight = !hasPast ? `You worked ${hrMin(w.work)} this week, with ${hrMin(w.focus)} in focus sessions. Next week's report compares against this week.`
+    : `Your ${m.name} this week was ${hrMin(m.cur)}, an average of ${hrMin(m.cur / 7)} per day. That is a ${m.c > 0 ? '+' : ''}${m.c}% change from your 4-week average of ${hrMin(m.base)}.`;
+  const dShare = DISTRACTING.reduce((a, k) => a + avg(w.cats.get(k) || 0, w.work), 0);
+  const dShare4 = DISTRACTING.reduce((a, k) => a + avg(p.cats.get(k) || 0, p.work), 0);
+  const recommendation =
+    dShare >= 0.2 || (hasPast && dShare - dShare4 >= 0.05)
+      ? `Entertainment and social media took ${Math.round(dShare * 100)}% of your tracked time${hasPast ? ` (${pp(dShare, dShare4) >= 0 ? '+' : ''}${pp(dShare, dShare4)} points vs your 4-week average)` : ''}. Before you start work, start a focus session and set "Block in focus" on those sites in Settings → Apps & Websites, so the blocker keeps them closed until the session ends.`
+    : sw >= 3 ? `Your focus sessions had ${focus.switches} context switches on average. Close chat and email before a session, and let the blocker stop the rest. Fewer switches give longer stretches of deep work.`
+    : overDays.length >= 2 ? `You went far past your target on ${overDays.length} days. Set a fixed stop time and let the break reminder end your day, so you start the next day rested.`
+    : w.work > 4 * 3600 && breaks.pct < 0.05 ? `Breaks were only ${Math.round(breaks.pct * 100)}% of your work hours. Take a 5-minute break after each focus session. Walk or stretch, and do not check messages.`
+    : w.work > 0 && share(w.focus, w) < 0.25 ? `Only ${Math.round(share(w.focus, w) * 100)}% of your work was in focus sessions. Plan two focus blocks each morning, or start a Pomodoro set from the Timer page.`
+    : w.work > 0 ? 'Your week is balanced. Keep the same routine: plan your focus sessions early in the day and protect them from meetings.'
+    : 'Cadence recorded no work this week. Check that tracking is on and that Cadence has its macOS permissions.';
+
+  return { from: week[0]?.key, to: week.at(-1)?.key, hasPast, work, breakdown, categories, focus, meetings, breaks, coach: { insight, recommendation } };
+}
+
 module.exports = {
+  weeklyReport,
   TICK_MS, IDLE_TEST, IDLE_FULL, IDLE_DEAD, CHUNK_SECS, DISCARD_SECS, Idler, Segmenter, matchRule, isBlockRule, clock, toTs,
   normalizeRule, detectSessions, focusScore, focusLabel, appsInRange, suggestEntries, summarize, hrMin, overlap,
 };

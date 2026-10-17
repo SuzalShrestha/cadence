@@ -39,6 +39,7 @@ module.exports = ({ app, api, getWindow, startSession, showToast, showOverlays, 
       ['entries', "location.hash = 'entries';"],
       ['reports', "location.hash = 'reports';"],
       ['productivity', "location.hash = 'productivity';"],
+      ['weekly', `location.hash = 'weekly/${day || api.state().todayKey}';`],
       ['projects', "location.hash = 'projects';"],
       ['clients', "location.hash = 'clients';"],
       ['tasks', "location.hash = 'tasks';"],
@@ -47,7 +48,10 @@ module.exports = ({ app, api, getWindow, startSession, showToast, showOverlays, 
       ['settings-rules', "location.hash = 'settings/rules';"],
       ['settings-hours', "location.hash = 'settings/hours';"],
     ];
-    for (const [name, code] of pages) { await js(code); await wait(1100); await shot(name, dash); }
+    for (const [name, code] of pages) {
+      await js(code); await wait(1100); await shot(name, dash);
+      if (name === 'weekly') fs.writeFileSync(path.join(dir, 'weekly.pdf'), await dash.webContents.printToPDF({ printBackground: true, pageSize: 'A4', margins: { marginType: 'none' } }));
+    }
 
     // Entry popover on the first time entry, if any.
     await js(`localStorage.setItem('home.view','day'); location.hash = '${day ? `home/${day}` : 'home'}';`); await wait(1200);

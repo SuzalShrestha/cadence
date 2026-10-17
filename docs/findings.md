@@ -80,3 +80,22 @@ Not copied: the Rize name, logo and icons. Cadence uses its own "C" mark and Luc
 Changed on purpose: Rize's category and session colors fail a color-blind check (teal vs. mauve ΔE ≈ 3). Cadence re-steps them. The palettes pass the dataviz validator for dark (`#1C1B23`) and light surfaces.
 
 Not confirmed (no access to the live Rize dashboard): exact spacing, hover states, the Year view, the Reports and Productivity layouts, and the suggestion confidence formula. Those parts are Cadence designs in the Rize style.
+
+## v0.3: weekly productivity assessment
+
+Source: one Rize weekly report (email and PDF, week Jul 20–27 2026). Rize.app was not installed, so REA had no binary to read. The earlier static study already showed that reports are server-side.
+
+| Observation (PDF) | Evidence |
+|---|---|
+| Rendered from HTML by Chromium | `pdfinfo`: Creator `Chromium`, Producer `Skia/PDF m104`, one page 270 × 4668 pt |
+| Created Monday after the week | CreationDate Mon Jul 27 17:54 (+0545) |
+| Sections | Work Hours, Breakdown, Top Categories, Top Projects, Focus, Meetings, Breaks (`pdftotext -layout`) |
+| Breakdown is a share of work hours, breaks included | Focus 39 + Meetings 0 + Breaks 23 + Other 38 = 100; 33 min ÷ 85 min = 39% |
+| "vs. 4-week average" for shares is in percentage points | Other 38% shows "62% ↓" against a 100% "other" past |
+| 4-week average = past 4 weeks ÷ 4; difference = week − average | 85 min − 42 min = 43 min |
+| Text is template-made | Grammar faults repeat ("consistent your normal amount", "1 hours") |
+| Coach text in the email is free-form | Insight and recommendation not in the PDF |
+
+`test/weekly.test.js` feeds the PDF's week into `core.weeklyReport` and gets the same numbers.
+
+Designed in Cadence (not observable): the text templates, the coach rules, the overwork limit (target + 2 h), and the focus score (Cadence's own). Left out: internal/external meetings and "people you met with" (needs a calendar), email delivery and an LLM coach (both need a server; Cadence makes no network requests).

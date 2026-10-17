@@ -2,12 +2,12 @@ import { api, esc, icon, clock, nowS, $, setClock24, SESSION } from './lib.js';
 
 const NAV = [
   ['Track', [['home', 'house', 'Home'], ['timer', 'timer', 'Timer'], ['activity', 'activity', 'Activity']]],
-  ['Insights', [['entries', 'list', 'Time Entries'], ['reports', 'chart-column', 'Reports'], ['productivity', 'trending-up', 'Productivity']]],
+  ['Insights', [['entries', 'list', 'Time Entries'], ['reports', 'chart-column', 'Reports'], ['productivity', 'trending-up', 'Productivity'], ['weekly', 'file-text', 'Weekly Report']]],
   ['Work', [['projects', 'box', 'Projects'], ['clients', 'building-2', 'Clients'], ['tasks', 'square-check-big', 'Tasks']]],
 ];
 const PAGES = {
   home: () => import('./pages/home.js'), timer: () => import('./pages/timer.js'), activity: () => import('./pages/activity.js'),
-  entries: () => import('./pages/entries.js'), reports: () => import('./pages/reports.js'), productivity: () => import('./pages/productivity.js'),
+  entries: () => import('./pages/entries.js'), reports: () => import('./pages/reports.js'), productivity: () => import('./pages/productivity.js'), weekly: () => import('./pages/weekly.js'),
   projects: () => import('./pages/work.js'), clients: () => import('./pages/work.js'), tasks: () => import('./pages/work.js'),
   settings: () => import('./pages/settings.js'),
 };
