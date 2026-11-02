@@ -1,0 +1,14 @@
+import { renderPoster, renderFilm, setLines, subs, buildEvents, textsAt, DUR, TIMELINE } from './film.js';
+const cv = document.getElementById('c'), g = cv.getContext('2d');
+await Promise.all([300, 400, 500, 600, 700].flatMap(w => [`${w} 40px Inter`, `${w} 40px InterTight`, `${w} 40px JBMono`]).map(f => document.fonts.load(f)));
+const get = async (u, d) => { try { const r = await fetch(u); return r.ok ? await r.json() : d; } catch { return d; } };
+setLines(await get('lines.json', []), await get('voices/dur.json', null));
+window.DUR = DUR;
+window.EV = buildEvents();
+window.SUBS = subs();
+window.TIMELINE = TIMELINE;
+const off = document.createElement('canvas'); off.width = 1920; off.height = 1080;
+window.TEXTS = t => textsAt(off.getContext('2d'), t);
+const Q = new URLSearchParams(location.search);
+window.render = Q.get('scene') === 'poster' ? (() => renderPoster(g)) : (t => renderFilm(g, t, { nosub: Q.has('nosub') }));
+window.READY = true;

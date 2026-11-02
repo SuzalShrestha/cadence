@@ -1,0 +1,71 @@
+1
+00:00:01,900 --> 00:00:05,139
+9 hours, 47 minutes at your desk.
+
+2
+00:00:05,300 --> 00:00:07,178
+So where did the day go?
+
+3
+00:00:07,600 --> 00:00:11,645
+You remember the standup. Lunch. A bug fix, maybe.
+
+4
+00:00:11,950 --> 00:00:15,600
+The rest is a blur of tabs, chats, and quick checks.
+
+5
+00:00:15,600 --> 00:00:18,706
+Then Friday, someone asks for your hours.
+
+6
+00:00:20,500 --> 00:00:22,300
+Meet Cadence.
+
+7
+00:00:22,600 --> 00:00:25,473
+It remembers your day, so you don't have to.
+
+8
+00:00:26,200 --> 00:00:30,580
+It notes the app or site in front of you, and gives you back the whole day.
+
+9
+00:00:32,750 --> 00:00:36,406
+Every 15 seconds. Quietly. Automatically.
+
+10
+00:00:37,000 --> 00:00:40,164
+Minutes become your day. Your week. Your year.
+
+11
+00:00:42,800 --> 00:00:46,642
+Start a focus session, and Cadence keeps distractions out.
+
+12
+00:00:47,700 --> 00:00:50,119
+Every session gets a focus score.
+
+13
+00:00:50,300 --> 00:00:52,750
+Reports by project and client.
+
+14
+00:00:52,750 --> 00:00:55,376
+And Friday's timesheet? Already done.
+
+15
+00:00:55,600 --> 00:00:58,927
+No account. No cloud. No analytics.
+
+16
+00:01:00,000 --> 00:01:02,186
+Your data stays on your Mac.
+
+17
+00:01:02,900 --> 00:01:06,207
+9:47. Now you know where it went.
+
+18
+00:01:07,000 --> 00:01:09,329
+Cadence. Free, for your Mac.
