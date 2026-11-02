@@ -1,0 +1,116 @@
+[
+ {
+  "id": "l1",
+  "text": "Nine hours, forty-seven minutes at your desk.",
+  "sub": "9 hours, 47 minutes at your desk.",
+  "voice": "af_heart",
+  "speed": 0.95,
+  "onscreen": true
+ },
+ {
+  "id": "l2",
+  "text": "So where did the day go?",
+  "voice": "af_heart",
+  "speed": 0.95
+ },
+ {
+  "id": "l3",
+  "text": "You remember the standup. Lunch. A bug fix, maybe.",
+  "voice": "af_heart",
+  "speed": 0.95,
+  "asr": "You remember the stand-up. Lunch. A bug fix, maybe."
+ },
+ {
+  "id": "l4",
+  "text": "The rest is a blur of tabs, chats, and quick checks.",
+  "voice": "af_heart",
+  "speed": 0.95
+ },
+ {
+  "id": "l5",
+  "text": "Then Friday, someone asks for your hours.",
+  "voice": "af_heart",
+  "speed": 0.95
+ },
+ {
+  "id": "l6",
+  "text": "Meet Cadence.",
+  "voice": "af_heart",
+  "speed": 0.92
+ },
+ {
+  "id": "l7",
+  "text": "It remembers your day, so you don't have to.",
+  "voice": "af_heart",
+  "speed": 0.95
+ },
+ {
+  "id": "l8",
+  "text": "It notes the app or site in front of you, and gives you back the whole day.",
+  "voice": "af_heart",
+  "speed": 0.97
+ },
+ {
+  "id": "l9",
+  "text": "Every fifteen seconds. Quietly. Automatically.",
+  "sub": "Every 15 seconds. Quietly. Automatically.",
+  "voice": "af_heart",
+  "speed": 0.95
+ },
+ {
+  "id": "l10",
+  "text": "Minutes become your day. Your week. Your year.",
+  "voice": "af_heart",
+  "speed": 0.95
+ },
+ {
+  "id": "l11",
+  "text": "Start a focus session, and Cadence keeps distractions out.",
+  "voice": "af_heart",
+  "speed": 0.97
+ },
+ {
+  "id": "l12",
+  "text": "Every session gets a focus score.",
+  "voice": "af_heart",
+  "speed": 0.95
+ },
+ {
+  "id": "l13",
+  "text": "Reports by project and client.",
+  "voice": "af_heart",
+  "speed": 0.95
+ },
+ {
+  "id": "l14",
+  "text": "And Friday's timesheet? Already done.",
+  "voice": "af_heart",
+  "speed": 0.95
+ },
+ {
+  "id": "l15",
+  "text": "No account. No cloud. No analytics.",
+  "voice": "af_heart",
+  "speed": 0.92
+ },
+ {
+  "id": "l16",
+  "text": "Your data stays on your Mac.",
+  "voice": "af_heart",
+  "speed": 0.92
+ },
+ {
+  "id": "l17",
+  "text": "Nine forty-seven. Now you know where it went.",
+  "sub": "9:47. Now you know where it went.",
+  "voice": "af_heart",
+  "speed": 0.95,
+  "asr": "947. Now you know where it went."
+ },
+ {
+  "id": "l18",
+  "text": "Cadence. Free, for your Mac.",
+  "voice": "af_heart",
+  "speed": 0.92
+ }
+]

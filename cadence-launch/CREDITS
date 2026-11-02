@@ -1,0 +1,25 @@
+Where did the day go? — a launch film for Cadence
+==================================================
+
+Product, name and app icon
+  Cadence — https://github.com/SuzalShrestha/cadence (MIT). The icon is drawn from build/icon.svg in that repository.
+
+Picture
+  All interface elements, data and motion are original and drawn in code (Canvas 2D).
+  The day, projects, clients and numbers shown are illustrative sample data.
+
+Type (SIL Open Font License 1.1, files and licences in fonts/)
+  Inter — Rasmus Andersson — https://github.com/google/fonts/tree/main/ofl/inter
+  Inter Tight — Rasmus Andersson — https://github.com/google/fonts/tree/main/ofl/intertight
+  JetBrains Mono — JetBrains — https://github.com/google/fonts/tree/main/ofl/jetbrainsmono
+
+Music (original score, score.py)
+  Samples (CC0): Versilian Community Sample Library (VCSL), Versilian Studios — https://github.com/sgossner/VCSL
+  Instruments: marimba, vibraphone (soft mallets), bowed vibraphone, glockenspiel. Pulse and shaker synthesized.
+
+Sound effects
+  Synthesized procedurally (mix.py). No recorded sound effects.
+
+Voice
+  Kokoro-82M text-to-speech (Apache-2.0), voice af_heart, via kokoro-onnx — https://github.com/thewh1teagle/kokoro-onnx
+  Speech check: faster-whisper (MIT).
